@@ -2,7 +2,7 @@ import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useEffect, useState, useRef } from "react";
 import { createRoot } from "react-dom/client";
 import { Player } from "@websim/remotion/player";
-import { Mail, Settings, Play, Monitor, User, Send as SendIcon, Columns, ArrowRightLeft } from "lucide-react";
+import { Mail, Settings, Play, Monitor, User, Send as SendIcon, Columns, ArrowRightLeft, Paperclip, Image as ImageIcon, X } from "lucide-react";
 import { store, startAiLoop, addEvent, eventLog, INITIAL_EMAILS } from "./store.js";
 import { EmailList, EmailReader, Cursor, FolderTabs, AiVisionOverlay } from "./components.jsx";
 import { EmailReplay } from "./video.jsx";
@@ -16,13 +16,15 @@ const useMobile = () => {
   }, []);
   return isMobile;
 };
-const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOpen, setIsComposeOpen, draftBody, setDraftBody, handleUserSend }) => {
+const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOpen, setIsComposeOpen, draftBody, setDraftBody, draftAttachment, setDraftAttachment, handleUserSend }) => {
   const folder = isAi ? state.aiFolder : state.userFolder;
   const userEmail = "user@websim.ai";
   const aiEmail = "ai@websim.ai";
   const [userReplyDraft, setUserReplyDraft] = useState("");
+  const [userReplyAttachment, setUserReplyAttachment] = useState(null);
   useEffect(() => {
     setUserReplyDraft("");
+    setUserReplyAttachment(null);
   }, [selectedEmail?.id]);
   const handleUserReplyChange = (text) => {
     setUserReplyDraft(text);
@@ -31,15 +33,17 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
     }
   };
   const handleSendReply = () => {
-    if (!userReplyDraft.trim() || !selectedEmail) return;
+    if (!userReplyDraft.trim() && !userReplyAttachment || !selectedEmail) return;
     store.getState().sendEmail({
       from: "user@websim.ai",
       to: selectedEmail.from === "user@websim.ai" ? selectedEmail.to : selectedEmail.from,
       subject: selectedEmail.subject.startsWith("Re:") ? selectedEmail.subject : `Re: ${selectedEmail.subject}`,
       body: userReplyDraft,
+      attachment: userReplyAttachment,
       folder: "sent"
     });
     setUserReplyDraft("");
+    setUserReplyAttachment(null);
     store.getState().setReplyingTo(null);
     addEvent("CLICK", { target: "send-reply-btn" }, "user");
     addEvent("EMAIL_SENT", { id: "user_reply" }, "user");
@@ -62,46 +66,46 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
         /* @__PURE__ */ jsxDEV("div", { className: clsx("p-1.5 rounded-lg", isAi ? "bg-cyan-900 text-cyan-400" : "bg-blue-600 text-white"), children: isAi ? /* @__PURE__ */ jsxDEV(Monitor, { size: 18 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 77,
+          lineNumber: 81,
           columnNumber: 29
         }) : /* @__PURE__ */ jsxDEV(User, { size: 18 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 77,
+          lineNumber: 81,
           columnNumber: 53
         }) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 76,
+          lineNumber: 80,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("h2", { className: clsx("font-bold text-sm tracking-wider", isAi ? "text-cyan-400" : "text-slate-700"), children: isAi ? "AI_AGENT_VIEW" : "USER_INBOX" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 79,
+          lineNumber: 83,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 75,
+        lineNumber: 79,
         columnNumber: 13
       }),
       isAi && /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-xs font-mono text-cyan-600", children: [
         /* @__PURE__ */ jsxDEV("span", { className: clsx("w-2 h-2 rounded-full", state.aiStatus !== "IDLE" ? "bg-cyan-400 animate-pulse" : "bg-cyan-900") }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 85,
+          lineNumber: 89,
           columnNumber: 20
         }),
         /* @__PURE__ */ jsxDEV("span", { children: state.aiStatus }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 86,
+          lineNumber: 90,
           columnNumber: 20
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 84,
+        lineNumber: 88,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 73,
+      lineNumber: 77,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -123,12 +127,12 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             children: [
               /* @__PURE__ */ jsxDEV(SendIcon, { size: 14 }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 107,
+                lineNumber: 111,
                 columnNumber: 25
               }),
               /* @__PURE__ */ jsxDEV("span", { className: "hidden sm:inline", children: "Compose" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 108,
+                lineNumber: 112,
                 columnNumber: 25
               })
             ]
@@ -137,12 +141,12 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           true,
           {
             fileName: "<stdin>",
-            lineNumber: 96,
+            lineNumber: 100,
             columnNumber: 21
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 95,
+          lineNumber: 99,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV(
@@ -156,7 +160,7 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 112,
+            lineNumber: 116,
             columnNumber: 17
           }
         ),
@@ -172,26 +176,26 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 118,
+            lineNumber: 122,
             columnNumber: 17
           }
         )
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 94,
+        lineNumber: 98,
         columnNumber: 13
       }),
       /* @__PURE__ */ jsxDEV("div", { className: clsx("flex-1 flex flex-col relative", isAi ? "bg-slate-950" : "bg-white"), children: [
         !isAi && isComposeOpen ? /* @__PURE__ */ jsxDEV("div", { className: "p-4 md:p-8 w-full h-full overflow-auto", children: [
           /* @__PURE__ */ jsxDEV("h3", { className: "text-lg font-bold text-slate-800 mb-4", children: "New Message" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 130,
+            lineNumber: 134,
             columnNumber: 25
           }),
           /* @__PURE__ */ jsxDEV("div", { className: "space-y-4", children: [
             /* @__PURE__ */ jsxDEV("input", { disabled: true, value: "To: ai@websim.ai", className: "w-full p-2 text-sm border rounded bg-slate-50 text-slate-500" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 132,
+              lineNumber: 136,
               columnNumber: 29
             }),
             /* @__PURE__ */ jsxDEV(
@@ -200,40 +204,113 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
                 value: draftBody,
                 onChange: (e) => setDraftBody(e.target.value),
                 placeholder: "Message...",
-                className: "w-full h-48 p-3 text-sm border rounded focus:ring-2 focus:ring-blue-500 outline-none resize-none text-slate-800"
+                className: "w-full h-48 p-3 text-sm border rounded focus:ring-2 focus:ring-blue-500 outline-none resize-none text-slate-800 mb-2"
               },
               void 0,
               false,
               {
                 fileName: "<stdin>",
-                lineNumber: 133,
+                lineNumber: 137,
                 columnNumber: 29
               }
             ),
-            /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end space-x-2", children: [
-              /* @__PURE__ */ jsxDEV("button", { onClick: () => setIsComposeOpen(false), className: "px-4 py-2 text-sm text-slate-500", children: "Cancel" }, void 0, false, {
+            /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between", children: [
+              /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
+                /* @__PURE__ */ jsxDEV("label", { className: "cursor-pointer text-slate-500 hover:text-blue-600 transition-colors p-2 rounded hover:bg-slate-100", children: [
+                  /* @__PURE__ */ jsxDEV(Paperclip, { size: 18 }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 147,
+                    columnNumber: 39
+                  }),
+                  /* @__PURE__ */ jsxDEV(
+                    "input",
+                    {
+                      type: "file",
+                      accept: "image/*",
+                      className: "hidden",
+                      onChange: async (e) => {
+                        if (e.target.files[0]) {
+                          try {
+                            const url = await websim.upload(e.target.files[0]);
+                            setDraftAttachment(url);
+                          } catch (err) {
+                            console.error(err);
+                          }
+                        }
+                      }
+                    },
+                    void 0,
+                    false,
+                    {
+                      fileName: "<stdin>",
+                      lineNumber: 148,
+                      columnNumber: 39
+                    }
+                  )
+                ] }, void 0, true, {
+                  fileName: "<stdin>",
+                  lineNumber: 146,
+                  columnNumber: 36
+                }),
+                draftAttachment && /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 bg-slate-100 px-2 py-1 rounded border border-slate-200", children: [
+                  /* @__PURE__ */ jsxDEV(ImageIcon, { size: 14, className: "text-blue-500" }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 164,
+                    columnNumber: 41
+                  }),
+                  /* @__PURE__ */ jsxDEV("span", { className: "text-xs text-slate-600 max-w-[100px] truncate", children: "attachment" }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 165,
+                    columnNumber: 41
+                  }),
+                  /* @__PURE__ */ jsxDEV("button", { onClick: () => setDraftAttachment(null), className: "text-slate-400 hover:text-red-500", children: /* @__PURE__ */ jsxDEV(X, { size: 14 }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 166,
+                    columnNumber: 136
+                  }) }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 166,
+                    columnNumber: 41
+                  })
+                ] }, void 0, true, {
+                  fileName: "<stdin>",
+                  lineNumber: 163,
+                  columnNumber: 38
+                })
+              ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 140,
+                lineNumber: 145,
                 columnNumber: 33
               }),
-              /* @__PURE__ */ jsxDEV("button", { id: "send-user-btn", onClick: handleUserSend, className: "px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700", children: "Send" }, void 0, false, {
+              /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end space-x-2", children: [
+                /* @__PURE__ */ jsxDEV("button", { onClick: () => setIsComposeOpen(false), className: "px-4 py-2 text-sm text-slate-500", children: "Cancel" }, void 0, false, {
+                  fileName: "<stdin>",
+                  lineNumber: 171,
+                  columnNumber: 37
+                }),
+                /* @__PURE__ */ jsxDEV("button", { id: "send-user-btn", onClick: handleUserSend, className: "px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700", children: "Send" }, void 0, false, {
+                  fileName: "<stdin>",
+                  lineNumber: 172,
+                  columnNumber: 37
+                })
+              ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 141,
+                lineNumber: 170,
                 columnNumber: 33
               })
             ] }, void 0, true, {
               fileName: "<stdin>",
-              lineNumber: 139,
+              lineNumber: 144,
               columnNumber: 29
             })
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 131,
+            lineNumber: 135,
             columnNumber: 25
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 129,
+          lineNumber: 133,
           columnNumber: 22
         }) : /* @__PURE__ */ jsxDEV(
           EmailReader,
@@ -248,20 +325,22 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             },
             userReplyDraft,
             setUserReplyDraft: !isAi ? handleUserReplyChange : void 0,
+            userReplyAttachment,
+            setUserReplyAttachment: !isAi ? setUserReplyAttachment : void 0,
             onSendReply: !isAi ? handleSendReply : void 0
           },
           void 0,
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 146,
+            lineNumber: 178,
             columnNumber: 21
           }
         ),
         isAi && /* @__PURE__ */ jsxDEV(Fragment, { children: [
           /* @__PURE__ */ jsxDEV(AiVisionOverlay, { focus: state.aiVisionFocus }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 164,
+            lineNumber: 198,
             columnNumber: 25
           }),
           /* @__PURE__ */ jsxDEV(
@@ -277,33 +356,33 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             false,
             {
               fileName: "<stdin>",
-              lineNumber: 165,
+              lineNumber: 199,
               columnNumber: 25
             }
           ),
           /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none retro-scanline z-40 opacity-30 mix-blend-overlay" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 172,
+            lineNumber: 206,
             columnNumber: 25
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 163,
+          lineNumber: 197,
           columnNumber: 21
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 127,
+        lineNumber: 131,
         columnNumber: 13
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 92,
+      lineNumber: 96,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 69,
+    lineNumber: 73,
     columnNumber: 7
   });
 };
@@ -313,6 +392,7 @@ const App = () => {
   const [selectedAiEmail, setSelectedAiEmail] = useState(null);
   const [isComposeOpen, setIsComposeOpen] = useState(false);
   const [draftBody, setDraftBody] = useState("");
+  const [draftAttachment, setDraftAttachment] = useState(null);
   const isMobile = useMobile();
   useEffect(() => {
     let lastLog = 0;
@@ -341,15 +421,17 @@ const App = () => {
     }
   }, [state.emails]);
   const handleUserSend = () => {
-    if (!draftBody.trim()) return;
+    if (!draftBody.trim() && !draftAttachment) return;
     store.getState().sendEmail({
       from: "user@websim.ai",
       to: "ai@websim.ai",
       subject: "Inquiry",
       body: draftBody,
+      attachment: draftAttachment,
       folder: "inbox"
     });
     setDraftBody("");
+    setDraftAttachment(null);
     setIsComposeOpen(false);
     addEvent("CLICK", { target: "send-user-btn" }, "user");
   };
@@ -361,17 +443,17 @@ const App = () => {
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-slate-400 font-mono text-xs", children: [
           /* @__PURE__ */ jsxDEV("span", { className: "w-2 h-2 bg-green-500 rounded-full" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 262,
+            lineNumber: 299,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: "SYSTEM_ONLINE" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 263,
+            lineNumber: 300,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { className: "text-slate-600", children: "|" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 264,
+            lineNumber: 301,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: [
@@ -379,12 +461,12 @@ const App = () => {
             " MESSAGES"
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 265,
+            lineNumber: 302,
             columnNumber: 21
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 261,
+          lineNumber: 298,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
@@ -396,12 +478,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(ArrowRightLeft, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 275,
+                  lineNumber: 312,
                   columnNumber: 29
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "Switch View" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 276,
+                  lineNumber: 313,
                   columnNumber: 29
                 })
               ]
@@ -410,7 +492,7 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 271,
+              lineNumber: 308,
               columnNumber: 25
             }
           ),
@@ -424,12 +506,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(Play, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 286,
+                  lineNumber: 323,
                   columnNumber: 25
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "REPLAY SESSION" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 287,
+                  lineNumber: 324,
                   columnNumber: 25
                 })
               ]
@@ -438,18 +520,18 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 280,
+              lineNumber: 317,
               columnNumber: 22
             }
           )
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 268,
+          lineNumber: 305,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 260,
+        lineNumber: 297,
         columnNumber: 14
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -467,18 +549,20 @@ const App = () => {
             setIsComposeOpen,
             draftBody,
             setDraftBody,
+            draftAttachment,
+            setDraftAttachment,
             handleUserSend
           },
           void 0,
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 296,
+            lineNumber: 333,
             columnNumber: 25
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 295,
+          lineNumber: 332,
           columnNumber: 21
         }),
         showAi && /* @__PURE__ */ jsxDEV("div", { className: clsx("h-full relative z-0", isMobile ? "w-full" : "w-1/2"), children: /* @__PURE__ */ jsxDEV(
@@ -494,22 +578,22 @@ const App = () => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 319,
+            lineNumber: 358,
             columnNumber: 26
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 314,
+          lineNumber: 353,
           columnNumber: 21
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 293,
+        lineNumber: 330,
         columnNumber: 14
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 258,
+      lineNumber: 295,
       columnNumber: 9
     });
   };
@@ -539,12 +623,12 @@ const App = () => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 349,
+          lineNumber: 388,
           columnNumber: 19
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 348,
+        lineNumber: 387,
         columnNumber: 15
       }),
       /* @__PURE__ */ jsxDEV(
@@ -555,12 +639,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 371,
+              lineNumber: 410,
               columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 372,
+              lineNumber: 411,
               columnNumber: 19
             })
           ]
@@ -569,13 +653,13 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 367,
+          lineNumber: 406,
           columnNumber: 15
         }
       )
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 347,
+      lineNumber: 386,
       columnNumber: 11
     });
   }
@@ -584,6 +668,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 382,
+  lineNumber: 421,
   columnNumber: 13
 }));

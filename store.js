@@ -54,7 +54,7 @@ export const store = createStore((set, get) => ({
   // AI State
   aiCursor: { x: 500, y: 300 },
   aiClicking: false,
-  aiStatus: 'IDLE', // 'IDLE' | 'SCANNING' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING'
+  aiStatus: 'IDLE', // 'IDLE' | 'SCANNING' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING' | 'GENERATING_ART'
   aiTarget: null, // DOM Element ID to interact with
   replyingToId: null, // The email ID currently being replied to
   aiActiveEmailId: null, // The email ID the AI is currently viewing
@@ -294,14 +294,73 @@ export const startAiLoop = () => {
     // 4. Generate Reply with LLM
     store.setState({ aiStatus: 'THINKING' });
     let replyText = "Receipt acknowledged.";
+    let generatedImageUrl = null;
+    
     try {
+        const messages = [
+            { 
+                role: "system", 
+                content: `You are an advanced AI assistant. Analyze the incoming email. 
+Respond with a JSON object strictly following this schema:
+{
+  "reply_text": "string (brief robotic polite reply, max 2 sentences)",
+  "should_generate_image": boolean (true if user asks for image or you decide to make one),
+  "image_prompt": "string (prompt for image generation, if applicable)",
+  "use_attachment_as_source": boolean (true if attached image should be used as img2img source)
+}
+` 
+            }
+        ];
+        
+        const userContent = [
+            { type: "text", text: `Subject: ${targetEmail.subject}\nBody: ${targetEmail.body}` }
+        ];
+        
+        if (targetEmail.attachment) {
+            userContent.push({ type: "image_url", image_url: { url: targetEmail.attachment } });
+            userContent.push({ type: "text", text: "(An image is attached. Analyze it.)" });
+        }
+        
+        messages.push({ role: "user", content: userContent });
+
         const completion = await websim.chat.completions.create({
-            messages: [
-                { role: "system", content: "You are a helpful automated email receipt AI. Keep replies brief, robotic but polite. Max 2 sentences." },
-                { role: "user", content: `Reply to email: ${targetEmail.subject} - ${targetEmail.body}` }
-            ]
+            messages,
+            json: true
         });
-        replyText = completion.content;
+        
+        const result = JSON.parse(completion.content);
+        replyText = result.reply_text || "Processing complete.";
+        
+        if (result.should_generate_image) {
+            store.setState({ aiStatus: 'GENERATING_ART' });
+            
+            // Generate Image
+            const genOptions = {
+                prompt: result.image_prompt || "Abstract digital art",
+                aspect_ratio: "16:9"
+            };
+            
+            if (result.use_attachment_as_source && targetEmail.attachment) {
+                try {
+                    const resp = await fetch(targetEmail.attachment);
+                    const blob = await resp.blob();
+                    const reader = new FileReader();
+                    const dataUrl = await new Promise(resolve => {
+                        reader.onloadend = () => resolve(reader.result);
+                        reader.readAsDataURL(blob);
+                    });
+                    genOptions.image_inputs = [{ url: dataUrl }];
+                    genOptions.prompt = result.image_prompt || "Enhance this image";
+                } catch(err) {
+                    console.error("Failed to process input image", err);
+                }
+            }
+            
+            const imgResult = await websim.imageGen(genOptions);
+            generatedImageUrl = imgResult.url;
+            store.setState({ aiStatus: 'THINKING' }); 
+        }
+
     } catch (e) {
         console.error("LLM Error", e);
     }
@@ -325,6 +384,12 @@ export const startAiLoop = () => {
     if (replyBodyPos) {
         // Move to text area center just for effect
         await moveMouseTo(replyBodyPos.x, replyBodyPos.y, 300);
+        
+        if (generatedImageUrl) {
+             store.getState().setAiTypingBuffer("[UPLOADING_GENERATED_ASSET...]");
+             await new Promise(r => setTimeout(r, 1500));
+        }
+
         await typeText(replyText, 'reply-body');
     }
     
@@ -343,6 +408,7 @@ export const startAiLoop = () => {
         to: targetEmail.from,
         subject: `Re: ${targetEmail.subject}`,
         body: replyText,
+        attachment: generatedImageUrl,
         folder: 'sent',
         read: true,
         timestamp: Date.now()

@@ -1,6 +1,6 @@
 import { jsxDEV } from "react/jsx-dev-runtime";
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Send, MousePointer2, Inbox, SendHorizontal, Cpu, MonitorPlay, Star, Crosshair } from "lucide-react";
+import { Mail, Send, MousePointer2, Inbox, SendHorizontal, Cpu, MonitorPlay, Star, Crosshair, Paperclip, Image as ImageIcon, X } from "lucide-react";
 import clsx from "clsx";
 import { store, addEvent } from "./store.js";
 const FolderTabs = ({ currentFolder, onSwitch, isAi }) => {
@@ -166,23 +166,25 @@ const EmailReader = ({
   onReplyClick,
   userReplyDraft = "",
   setUserReplyDraft,
+  userReplyAttachment = null,
+  setUserReplyAttachment,
   onSendReply
 }) => {
   if (!email) {
     return /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col items-center justify-center text-slate-600 bg-slate-950", children: [
       /* @__PURE__ */ jsxDEV(Mail, { size: 48, className: "mb-4 opacity-50" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 98,
+        lineNumber: 100,
         columnNumber: 9
       }),
       /* @__PURE__ */ jsxDEV("p", { children: "Select an email to read" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 99,
+        lineNumber: 101,
         columnNumber: 9
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 97,
+      lineNumber: 99,
       columnNumber: 7
     });
   }
@@ -192,7 +194,7 @@ const EmailReader = ({
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-start justify-between mb-4", children: [
         /* @__PURE__ */ jsxDEV("h2", { className: "text-2xl font-bold text-white", children: email.subject }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 110,
+          lineNumber: 112,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV(
@@ -203,7 +205,7 @@ const EmailReader = ({
             className: "p-2 hover:bg-slate-800 rounded-full transition-colors",
             children: /* @__PURE__ */ jsxDEV(Star, { size: 20, className: clsx("transition-colors", email.starred ? "fill-yellow-500 text-yellow-500" : "text-slate-600 hover:text-slate-400") }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 116,
+              lineNumber: 118,
               columnNumber: 17
             })
           },
@@ -211,26 +213,26 @@ const EmailReader = ({
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 111,
+            lineNumber: 113,
             columnNumber: 13
           }
         )
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 109,
+        lineNumber: 111,
         columnNumber: 9
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between", children: [
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-3", children: [
           /* @__PURE__ */ jsxDEV("div", { className: "w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-lg font-bold", children: email.from[0].toUpperCase() }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 121,
+            lineNumber: 123,
             columnNumber: 13
           }),
           /* @__PURE__ */ jsxDEV("div", { children: [
             /* @__PURE__ */ jsxDEV("div", { className: "font-bold", children: email.from }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 125,
+              lineNumber: 127,
               columnNumber: 15
             }),
             /* @__PURE__ */ jsxDEV("div", { className: "text-xs text-slate-400", children: [
@@ -238,73 +240,190 @@ const EmailReader = ({
               email.to
             ] }, void 0, true, {
               fileName: "<stdin>",
-              lineNumber: 126,
+              lineNumber: 128,
               columnNumber: 15
             })
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 124,
+            lineNumber: 126,
             columnNumber: 13
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 120,
+          lineNumber: 122,
           columnNumber: 11
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "text-sm text-slate-500", children: new Date(email.timestamp).toLocaleString() }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 129,
+          lineNumber: 131,
           columnNumber: 11
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 119,
+        lineNumber: 121,
         columnNumber: 9
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 108,
+      lineNumber: 110,
       columnNumber: 7
     }),
-    /* @__PURE__ */ jsxDEV("div", { id: "email-body-content", className: "p-6 flex-1 overflow-y-auto whitespace-pre-wrap text-slate-300 leading-relaxed", children: email.body }, void 0, false, {
+    /* @__PURE__ */ jsxDEV("div", { id: "email-body-content", className: "p-6 flex-1 overflow-y-auto whitespace-pre-wrap text-slate-300 leading-relaxed", children: [
+      email.body,
+      email.attachment && /* @__PURE__ */ jsxDEV("div", { className: "mt-4", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "text-xs text-slate-500 mb-1 flex items-center gap-1", children: [
+          /* @__PURE__ */ jsxDEV(ImageIcon, { size: 12 }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 142,
+            columnNumber: 17
+          }),
+          /* @__PURE__ */ jsxDEV("span", { children: "Attachment" }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 143,
+            columnNumber: 17
+          })
+        ] }, void 0, true, {
+          fileName: "<stdin>",
+          lineNumber: 141,
+          columnNumber: 14
+        }),
+        /* @__PURE__ */ jsxDEV(
+          "img",
+          {
+            src: email.attachment,
+            alt: "Email Attachment",
+            className: "max-w-full rounded border border-slate-700 max-h-[400px] object-contain bg-black/20",
+            loading: "lazy"
+          },
+          void 0,
+          false,
+          {
+            fileName: "<stdin>",
+            lineNumber: 145,
+            columnNumber: 14
+          }
+        )
+      ] }, void 0, true, {
+        fileName: "<stdin>",
+        lineNumber: 140,
+        columnNumber: 11
+      })
+    ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 135,
+      lineNumber: 137,
       columnNumber: 7
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "p-4 border-t border-slate-800 bg-slate-900", children: isReplying ? /* @__PURE__ */ jsxDEV("div", { className: "space-y-3", children: [
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-blue-400 text-sm font-mono mb-2", children: [
         /* @__PURE__ */ jsxDEV(Cpu, { size: 14 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 144,
+          lineNumber: 160,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("span", { children: isAiView ? "AI RESPONSE GENERATION PROTOCOL" : "COMPOSING REPLY..." }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 145,
+          lineNumber: 161,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 143,
+        lineNumber: 159,
         columnNumber: 14
       }),
-      !isAiView && setUserReplyDraft ? /* @__PURE__ */ jsxDEV(
-        "textarea",
-        {
-          id: "reply-body",
-          value: userReplyDraft,
-          onChange: (e) => setUserReplyDraft(e.target.value),
-          className: "w-full p-4 bg-slate-800 rounded border border-blue-900/50 text-white font-mono h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none placeholder-slate-500",
-          placeholder: "Type your reply here..."
-        },
-        void 0,
-        false,
-        {
+      !isAiView && setUserReplyDraft ? /* @__PURE__ */ jsxDEV("div", { className: "space-y-2", children: [
+        /* @__PURE__ */ jsxDEV(
+          "textarea",
+          {
+            id: "reply-body",
+            value: userReplyDraft,
+            onChange: (e) => setUserReplyDraft(e.target.value),
+            className: "w-full p-4 bg-slate-800 rounded border border-blue-900/50 text-white font-mono h-32 focus:ring-2 focus:ring-blue-500 outline-none resize-none placeholder-slate-500",
+            placeholder: "Type your reply here..."
+          },
+          void 0,
+          false,
+          {
+            fileName: "<stdin>",
+            lineNumber: 166,
+            columnNumber: 18
+          }
+        ),
+        /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between", children: /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
+          /* @__PURE__ */ jsxDEV("label", { className: "cursor-pointer text-slate-400 hover:text-white transition-colors p-2 rounded hover:bg-slate-800", children: [
+            /* @__PURE__ */ jsxDEV(Paperclip, { size: 18 }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 176,
+              columnNumber: 27
+            }),
+            /* @__PURE__ */ jsxDEV(
+              "input",
+              {
+                type: "file",
+                accept: "image/*",
+                className: "hidden",
+                onChange: async (e) => {
+                  if (e.target.files[0]) {
+                    try {
+                      const url = await websim.upload(e.target.files[0]);
+                      setUserReplyAttachment(url);
+                    } catch (err) {
+                      console.error(err);
+                    }
+                  }
+                }
+              },
+              void 0,
+              false,
+              {
+                fileName: "<stdin>",
+                lineNumber: 177,
+                columnNumber: 27
+              }
+            )
+          ] }, void 0, true, {
+            fileName: "<stdin>",
+            lineNumber: 175,
+            columnNumber: 24
+          }),
+          userReplyAttachment && /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 bg-slate-800 px-2 py-1 rounded border border-slate-700", children: [
+            /* @__PURE__ */ jsxDEV(ImageIcon, { size: 14, className: "text-blue-400" }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 193,
+              columnNumber: 29
+            }),
+            /* @__PURE__ */ jsxDEV("span", { className: "text-xs text-slate-300 max-w-[100px] truncate", children: "image_attached" }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 194,
+              columnNumber: 29
+            }),
+            /* @__PURE__ */ jsxDEV("button", { onClick: () => setUserReplyAttachment(null), className: "text-slate-500 hover:text-red-400", children: /* @__PURE__ */ jsxDEV(X, { size: 14 }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 195,
+              columnNumber: 128
+            }) }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 195,
+              columnNumber: 29
+            })
+          ] }, void 0, true, {
+            fileName: "<stdin>",
+            lineNumber: 192,
+            columnNumber: 26
+          })
+        ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 149,
-          columnNumber: 16
-        }
-      ) : /* @__PURE__ */ jsxDEV(
+          lineNumber: 174,
+          columnNumber: 21
+        }) }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 173,
+          columnNumber: 18
+        })
+      ] }, void 0, true, {
+        fileName: "<stdin>",
+        lineNumber: 165,
+        columnNumber: 16
+      }) : /* @__PURE__ */ jsxDEV(
         "div",
         {
           id: "reply-body",
@@ -316,7 +435,7 @@ const EmailReader = ({
             isAiView ? typingBuffer || "" : userReplyDraft || typingBuffer || "",
             isAiView && /* @__PURE__ */ jsxDEV("span", { className: "animate-pulse inline-block w-2 h-4 bg-cyan-400 ml-1" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 165,
+              lineNumber: 210,
               columnNumber: 31
             })
           ]
@@ -325,7 +444,7 @@ const EmailReader = ({
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 157,
+          lineNumber: 202,
           columnNumber: 16
         }
       ),
@@ -342,12 +461,12 @@ const EmailReader = ({
           children: [
             /* @__PURE__ */ jsxDEV(Send, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 179,
+              lineNumber: 224,
               columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Send Reply" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 180,
+              lineNumber: 225,
               columnNumber: 19
             })
           ]
@@ -356,17 +475,17 @@ const EmailReader = ({
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 170,
+          lineNumber: 215,
           columnNumber: 17
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 169,
+        lineNumber: 214,
         columnNumber: 14
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 142,
+      lineNumber: 158,
       columnNumber: 12
     }) : /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxDEV(
       "button",
@@ -377,12 +496,12 @@ const EmailReader = ({
         children: [
           /* @__PURE__ */ jsxDEV(Send, { size: 16 }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 191,
+            lineNumber: 236,
             columnNumber: 16
           }),
           /* @__PURE__ */ jsxDEV("span", { children: "Reply" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 192,
+            lineNumber: 237,
             columnNumber: 16
           })
         ]
@@ -391,21 +510,21 @@ const EmailReader = ({
       true,
       {
         fileName: "<stdin>",
-        lineNumber: 186,
+        lineNumber: 231,
         columnNumber: 14
       }
     ) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 185,
+      lineNumber: 230,
       columnNumber: 12
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 140,
+      lineNumber: 156,
       columnNumber: 7
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 107,
+    lineNumber: 109,
     columnNumber: 5
   });
 };
@@ -418,7 +537,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
       children: [
         /* @__PURE__ */ jsxDEV("div", { className: "cursor-ring" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 208,
+          lineNumber: 253,
           columnNumber: 7
         }),
         /* @__PURE__ */ jsxDEV(
@@ -434,7 +553,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 209,
+            lineNumber: 254,
             columnNumber: 7
           }
         ),
@@ -443,7 +562,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
           isAi ? "bg-cyan-500 text-black" : "bg-white text-black"
         ), children: label }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 217,
+          lineNumber: 262,
           columnNumber: 9
         })
       ]
@@ -452,7 +571,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
     true,
     {
       fileName: "<stdin>",
-      lineNumber: 204,
+      lineNumber: 249,
       columnNumber: 5
     }
   );
@@ -473,17 +592,17 @@ const AiVisionOverlay = ({ focus }) => {
         /* @__PURE__ */ jsxDEV("div", { className: "absolute -top-6 left-0 bg-red-500/80 text-white text-[10px] font-mono px-1 py-0.5 rounded-sm flex items-center space-x-1", children: [
           /* @__PURE__ */ jsxDEV(Crosshair, { size: 10 }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 245,
+            lineNumber: 290,
             columnNumber: 17
           }),
           /* @__PURE__ */ jsxDEV("span", { children: focus.label || "OBJECT_DETECTED" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 246,
+            lineNumber: 291,
             columnNumber: 17
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 244,
+          lineNumber: 289,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "absolute -bottom-4 right-0 text-red-400 text-[9px] font-mono", children: [
@@ -492,27 +611,27 @@ const AiVisionOverlay = ({ focus }) => {
           Math.round(focus.height)
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 248,
+          lineNumber: 293,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-red-400" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 252,
+          lineNumber: 297,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-red-400" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 253,
+          lineNumber: 298,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-red-400" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 254,
+          lineNumber: 299,
           columnNumber: 13
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-400" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 255,
+          lineNumber: 300,
           columnNumber: 13
         })
       ]
@@ -521,7 +640,7 @@ const AiVisionOverlay = ({ focus }) => {
     true,
     {
       fileName: "<stdin>",
-      lineNumber: 235,
+      lineNumber: 280,
       columnNumber: 9
     }
   );
