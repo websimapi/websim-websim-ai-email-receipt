@@ -1,13 +1,23 @@
 import { createStore } from 'https://esm.sh/zustand/vanilla';
 
 // Initial Mock Data
-const INITIAL_EMAILS = [
+export const INITIAL_EMAILS = [
   {
     id: 'msg_0',
     from: 'system@websim.ai',
     to: 'ai@websim.ai',
     subject: 'Welcome to the Simulation',
     body: 'You are an AI agent. Your job is to read emails and reply to them. Use the interface provided.',
+    folder: 'inbox',
+    read: false,
+    timestamp: Date.now()
+  },
+  {
+    id: 'msg_1',
+    from: 'admin@websim.ai',
+    to: 'user@websim.ai',
+    subject: 'System Access Granted',
+    body: 'Welcome User. You can communicate with the AI agent by sending emails to ai@websim.ai.',
     folder: 'inbox',
     read: false,
     timestamp: Date.now()
@@ -34,6 +44,8 @@ export const store = createStore((set, get) => ({
   
   // Email Data
   emails: INITIAL_EMAILS,
+  userFolder: 'inbox', // 'inbox' | 'sent'
+  aiFolder: 'inbox',   // 'inbox' | 'sent'
   draft: { to: 'ai@websim.ai', subject: '', body: '' },
   
   // AI State
@@ -87,6 +99,7 @@ export const store = createStore((set, get) => ({
   },
 
   setDraft: (field, value) => set(state => ({ draft: { ...state.draft, [field]: value } })),
+  setFolder: (actor, folder) => set(state => actor === 'user' ? { userFolder: folder } : { aiFolder: folder }),
 }));
 
 // AI "Driver" Logic
@@ -189,6 +202,17 @@ export const startAiLoop = () => {
     // Otherwise it waits. This ensures coordinates are valid.
     if (state.viewMode !== 'ai') return;
     
+    // AI acts as an Observer. It only "works" visually when observed in AI mode.
+    // Otherwise it waits. This ensures coordinates are valid.
+    if (state.viewMode !== 'ai') return;
+    
+    // Ensure AI is in Inbox mode to see incoming messages
+    if (state.aiFolder !== 'inbox') {
+        store.getState().setFolder('ai', 'inbox');
+        await new Promise(r => setTimeout(r, 500)); // Wait for render
+        return;
+    }
+
     const unreadEmails = state.emails.filter(e => !e.read && e.to === 'ai@websim.ai');
     
     if (unreadEmails.length === 0 || state.aiStatus !== 'IDLE') return;
