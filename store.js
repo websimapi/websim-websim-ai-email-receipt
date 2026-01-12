@@ -94,8 +94,9 @@ export const store = createStore((set, get) => ({
     
     addEvent('EMAIL_RECEIVED', newEmail, 'system');
     
-    // Play sound
+    // Play sound and log it
     new Audio('notification.mp3').play().catch(() => {});
+    addEvent('AUDIO_PLAY', { sound: 'notification' }, 'system');
   },
 
   markRead: (id) => {
@@ -205,6 +206,9 @@ async function simulateClick(targetId) {
     setTimeout(() => store.getState().setAiClicking(false), 200);
     new Audio('mouse_click.mp3').play().catch(()=>{});
     addEvent('CLICK', { target: targetId }, 'ai');
+    // Note: CLICK implies sound, so we don't strictly need AUDIO_PLAY here if the video logic maps CLICK to sound.
+    // But for completeness based on user request:
+    addEvent('AUDIO_PLAY', { sound: 'click' }, 'ai');
 }
 
 // Audio pool to prevent lag/glitches during rapid typing

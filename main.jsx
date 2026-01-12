@@ -632,21 +632,21 @@ const App = () => {
         lineNumber: 390,
         columnNumber: 15
       }),
-      /* @__PURE__ */ jsxDEV(
+      /* @__PURE__ */ jsxDEV("div", { className: "w-full max-w-[1280px] flex justify-end mt-4", children: /* @__PURE__ */ jsxDEV(
         "button",
         {
           onClick: () => store.getState().setViewMode("live"),
-          className: "px-8 py-3 bg-slate-800 text-white rounded hover:bg-slate-700 border border-slate-600 font-medium text-sm flex items-center space-x-2 shadow-lg transition-all",
+          className: "px-6 py-3 bg-slate-800 text-white rounded hover:bg-slate-700 border border-slate-700 font-medium text-sm flex items-center space-x-2 shadow-lg transition-all",
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 413,
-              columnNumber: 19
-            }),
-            /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
-              fileName: "<stdin>",
               lineNumber: 414,
-              columnNumber: 19
+              columnNumber: 23
+            }),
+            /* @__PURE__ */ jsxDEV("span", { children: "Back to Inbox" }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 415,
+              columnNumber: 23
             })
           ]
         },
@@ -654,10 +654,14 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 409,
-          columnNumber: 15
+          lineNumber: 410,
+          columnNumber: 19
         }
-      )
+      ) }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 409,
+        columnNumber: 15
+      })
     ] }, void 0, true, {
       fileName: "<stdin>",
       lineNumber: 389,
@@ -669,6 +673,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 424,
+  lineNumber: 426,
   columnNumber: 13
 }));
