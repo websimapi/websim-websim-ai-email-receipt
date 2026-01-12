@@ -532,6 +532,7 @@ const App = () => {
           controls: true,
           autoPlay: true,
           loop: true,
+          numberOfSharedAudioTags: 20,
           style: { width: "100%", height: "100%" }
         },
         void 0,
@@ -554,12 +555,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 370,
+              lineNumber: 371,
               columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 371,
+              lineNumber: 372,
               columnNumber: 19
             })
           ]
@@ -568,7 +569,7 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 366,
+          lineNumber: 367,
           columnNumber: 15
         }
       )
@@ -583,6 +584,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 381,
+  lineNumber: 382,
   columnNumber: 13
 }));
