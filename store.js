@@ -30,6 +30,7 @@ export const addEvent = (type, payload, actor = 'user') => {
 // Global State
 export const store = createStore((set, get) => ({
   viewMode: 'user', // 'user' | 'ai' | 'replay'
+  replayConfig: { type: 'single', view: 'user' },
   
   // Email Data
   emails: INITIAL_EMAILS,
@@ -45,6 +46,7 @@ export const store = createStore((set, get) => ({
   
   // Actions
   setViewMode: (mode) => set({ viewMode: mode }),
+  setReplayConfig: (config) => set({ replayConfig: config }),
   setReplyingTo: (id) => set({ replyingToId: id }),
   setAiClicking: (isClicking) => set({ aiClicking: isClicking }),
   setAiTypingBuffer: (text) => set({ aiTypingBuffer: text }),
