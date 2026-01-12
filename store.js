@@ -305,7 +305,7 @@ export const startAiLoop = () => {
             const analysisCompletion = await websim.chat.completions.create({
                 messages: [
                     { role: "user", content: [
-                        { type: "text", text: "You are the Vision Module. Analyze this image in technical detail. Describe the subject, composition, style, and any text present." },
+                        { type: "text", text: "You are the Vision Module. Analyze this image. Describe the subject, composition, style, colors, and mood in detail so that an image generator could recreate or modify it." },
                         { type: "image_url", image_url: { url: targetEmail.attachment } }
                     ]}
                 ]
@@ -331,8 +331,10 @@ export const startAiLoop = () => {
         
         Capabilities:
         1. Reply with text (keep it brief, slightly robotic but helpful).
-        2. Generate NEW images (if user asks to "make", "create", "generate" an image).
-        3. Modify attached images (if user asks to "change", "edit", "fix", "style" the attachment).
+        2. Generate NEW images (if user asks to "make", "create", "generate" an image from scratch).
+        3. Modify/Variation of attached images (if user asks to "change", "edit", "fix", "style", "variant", or "create based on" the attachment).
+           - IMPORTANT: If the user provides an image and wants an output based on it (e.g. "make a similar one", "cartoonize this"), YOU MUST choose "modify".
+           - When modifying, 'image_prompt' should describe the DESIRED result.
         4. Generate TTS Voice Audio (if user asks for voice/speech, or if you want to emphasize a point).
         
         Respond with this JSON structure:
@@ -374,10 +376,12 @@ export const startAiLoop = () => {
             };
             
             if (plan.image_action === 'modify' && targetEmail.attachment) {
+                 store.setState({ aiTypingBuffer: "[PROCESSING_SOURCE_IMAGE...]" });
                  const dataUrl = await urlToDataUrl(targetEmail.attachment);
                  if (dataUrl) {
                     genOptions.image_inputs = [{ url: dataUrl }];
-                    // For img2img, the prompt drives the modification
+                 } else {
+                    console.warn("Failed to process attachment for modification, falling back to text-to-image");
                  }
             }
             
