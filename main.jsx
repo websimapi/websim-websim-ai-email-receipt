@@ -515,8 +515,8 @@ const App = () => {
   };
   if (state.viewMode === "replay") {
     const duration = Math.max(150, Math.ceil((Date.now() - (eventLog[0]?.timestamp || Date.now())) / 1e3 * 30));
-    return /* @__PURE__ */ jsxDEV("div", { className: "h-full w-full bg-black flex flex-col items-center justify-center p-4", children: /* @__PURE__ */ jsxDEV("div", { className: "w-full h-full max-w-[1920px] max-h-[1080px] bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden relative", children: [
-      /* @__PURE__ */ jsxDEV(
+    return /* @__PURE__ */ jsxDEV("div", { className: "h-full w-full bg-black flex flex-col items-center justify-center p-4", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "w-full aspect-video max-w-[1280px] bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden relative mb-6", children: /* @__PURE__ */ jsxDEV(
         Player,
         {
           component: EmailReplay,
@@ -541,22 +541,26 @@ const App = () => {
           lineNumber: 349,
           columnNumber: 19
         }
-      ),
+      ) }, void 0, false, {
+        fileName: "<stdin>",
+        lineNumber: 348,
+        columnNumber: 15
+      }),
       /* @__PURE__ */ jsxDEV(
         "button",
         {
           onClick: () => store.getState().setViewMode("live"),
-          className: "absolute bottom-6 right-6 px-6 py-2 bg-slate-800/90 text-white rounded hover:bg-slate-700 backdrop-blur border border-slate-600 font-medium text-sm flex items-center space-x-2 z-50",
+          className: "px-8 py-3 bg-slate-800 text-white rounded hover:bg-slate-700 border border-slate-600 font-medium text-sm flex items-center space-x-2 shadow-lg transition-all",
           children: [
-            /* @__PURE__ */ jsxDEV(Monitor, { size: 14 }, void 0, false, {
+            /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 369,
-              columnNumber: 23
+              lineNumber: 370,
+              columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 370,
-              columnNumber: 23
+              lineNumber: 371,
+              columnNumber: 19
             })
           ]
         },
@@ -564,15 +568,11 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 365,
-          columnNumber: 19
+          lineNumber: 366,
+          columnNumber: 15
         }
       )
     ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 348,
-      columnNumber: 15
-    }) }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 347,
       columnNumber: 11

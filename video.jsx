@@ -1,6 +1,6 @@
-import { jsxDEV } from "react/jsx-dev-runtime";
-import React from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, Sequence, interpolate } from "remotion";
+import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
+import React, { useMemo } from "react";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, Sequence, interpolate, Audio } from "remotion";
 import { EmailList, EmailReader, Cursor } from "./components.jsx";
 import { Inbox, Cpu, User } from "lucide-react";
 import clsx from "clsx";
@@ -163,17 +163,49 @@ const ReplayInterface = ({ state, isAi }) => {
     columnNumber: 9
   });
 };
+const AudioLayer = ({ eventLog, startTime }) => {
+  const { fps } = useVideoConfig();
+  const audioEvents = useMemo(() => {
+    return eventLog.flatMap((e, i) => {
+      const offset = (e.timestamp - startTime) * fps / 1e3;
+      const startFrame = Math.max(0, offset);
+      if (e.type === "CLICK") {
+        return [{ id: `click_${i}`, src: "/mouse_click.mp3", start: startFrame, volume: 0.5 }];
+      }
+      if (e.type === "TYPE_CHAR" && e.payload.char.trim().length > 0) {
+        return [{ id: `type_${i}`, src: "/keyboard_clack.mp3", start: startFrame, volume: 0.2 }];
+      }
+      if (e.type === "EMAIL_RECEIVED") {
+        return [{ id: `notif_${i}`, src: "/notification.mp3", start: startFrame, volume: 0.6 }];
+      }
+      return [];
+    });
+  }, [eventLog, startTime, fps]);
+  return /* @__PURE__ */ jsxDEV(Fragment, { children: audioEvents.map((evt) => /* @__PURE__ */ jsxDEV(Sequence, { from: evt.start, children: /* @__PURE__ */ jsxDEV(Audio, { src: evt.src, volume: evt.volume }, void 0, false, {
+    fileName: "<stdin>",
+    lineNumber: 163,
+    columnNumber: 21
+  }) }, evt.id, false, {
+    fileName: "<stdin>",
+    lineNumber: 162,
+    columnNumber: 17
+  })) }, void 0, false, {
+    fileName: "<stdin>",
+    lineNumber: 160,
+    columnNumber: 9
+  });
+};
 const EmailReplay = ({ eventLog, initialEmails }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   if (!eventLog || eventLog.length === 0) {
     return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex items-center justify-center text-white", children: /* @__PURE__ */ jsxDEV("h1", { className: "text-4xl font-bold", children: "No Recording Data" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 145,
+      lineNumber: 178,
       columnNumber: 13
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 144,
+      lineNumber: 177,
       columnNumber: 9
     });
   }
@@ -182,37 +214,32 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   const userState = reconstructState(eventLog, currentTime, initialEmails, "user");
   const aiState = reconstructState(eventLog, currentTime, initialEmails, "ai");
   return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden", children: [
+    /* @__PURE__ */ jsxDEV(AudioLayer, { eventLog, startTime }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 191,
+      columnNumber: 9
+    }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 174,
+      lineNumber: 195,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 173,
+      lineNumber: 194,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 179,
+      lineNumber: 200,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 178,
-      columnNumber: 9
-    }),
-    /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-4 right-4 font-mono text-xs text-cyan-400 bg-black/90 px-3 py-1 rounded z-50 border border-cyan-900/50 shadow-lg", children: [
-      "T: ",
-      (currentTime - startTime).toFixed(0),
-      "ms | FRAME: ",
-      frame
-    ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 183,
+      lineNumber: 199,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 171,
+    lineNumber: 190,
     columnNumber: 5
   });
 };
