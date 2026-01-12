@@ -37,11 +37,17 @@ export const store = createStore((set, get) => ({
   
   // AI State
   aiCursor: { x: 500, y: 300 },
-  aiStatus: 'IDLE', // 'IDLE' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING'
+  aiClicking: false,
+  aiStatus: 'IDLE', // 'IDLE' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING'
   aiTarget: null, // DOM Element ID to interact with
+  replyingToId: null, // The email ID currently being replied to
+  aiTypingBuffer: "", // Live buffer for what AI is typing
   
   // Actions
   setViewMode: (mode) => set({ viewMode: mode }),
+  setReplyingTo: (id) => set({ replyingToId: id }),
+  setAiClicking: (isClicking) => set({ aiClicking: isClicking }),
+  setAiTypingBuffer: (text) => set({ aiTypingBuffer: text }),
   
   sendEmail: (email) => {
     const newEmail = {
@@ -92,6 +98,12 @@ let aiMemory = {
 const getElementPos = (id) => {
   const el = document.getElementById(id);
   if (!el) return null;
+  
+  // Only scroll if we are in AI view to avoid disrupting user
+  if (store.getState().viewMode === 'ai') {
+    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+  
   const rect = el.getBoundingClientRect();
   // Return center of element
   return { 
@@ -101,21 +113,26 @@ const getElementPos = (id) => {
 };
 
 // Smooth mouse move simulation
-async function moveMouseTo(targetX, targetY, duration = 500) {
+async function moveMouseTo(targetX, targetY, duration = 600) {
   const start = store.getState().aiCursor;
   const startTime = Date.now();
   
+  // Add some randomness to path (Bezier-like curve midpoint)
+  const controlX = (start.x + targetX) / 2 + (Math.random() - 0.5) * 100;
+  const controlY = (start.y + targetY) / 2 + (Math.random() - 0.5) * 100;
+
   return new Promise(resolve => {
     const animate = () => {
+      // If user switches view, we might want to stop, but let's finish the move
       const now = Date.now();
       const progress = Math.min((now - startTime) / duration, 1);
       
-      // Easing (ease-out-quad)
-      const ease = t => t * (2 - t);
-      const t = ease(progress);
+      // Cubic easing
+      const t = progress < 0.5 ? 2 * progress * progress : -1 + (4 - 2 * progress) * progress;
       
-      const x = start.x + (targetX - start.x) * t;
-      const y = start.y + (targetY - start.y) * t;
+      // Quadratic Bezier
+      const x = (1 - t) * (1 - t) * start.x + 2 * (1 - t) * t * controlX + t * t * targetX;
+      const y = (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * controlY + t * t * targetY;
       
       store.getState().updateAiCursor(x, y);
       addEvent('MOUSE_MOVE', { x, y }, 'ai'); // Log for replay
@@ -130,26 +147,30 @@ async function moveMouseTo(targetX, targetY, duration = 500) {
   });
 }
 
+async function simulateClick(targetId) {
+    store.getState().setAiClicking(true);
+    setTimeout(() => store.getState().setAiClicking(false), 200);
+    new Audio('mouse_click.mp3').play().catch(()=>{});
+    addEvent('CLICK', { target: targetId }, 'ai');
+}
+
 async function typeText(text, targetInputId) {
   addEvent('FOCUS_INPUT', { id: targetInputId }, 'ai');
+  let currentBuffer = "";
+  store.getState().setAiTypingBuffer("");
   
   for (let i = 0; i < text.length; i++) {
     const char = text[i];
-    await new Promise(r => setTimeout(r, 50 + Math.random() * 50)); // Variable typing speed
+    await new Promise(r => setTimeout(r, 30 + Math.random() * 40)); // Variable typing speed
     
-    // Update the UI state directly to simulate typing into the "system"
-    // In a real app we'd dispatch events, but here we cheat slightly for stability
-    if (targetInputId === 'reply-body') {
-       // We handle this via specific "AI Reply" state in the UI components usually,
-       // but let's assume the AI is just emitting "TYPE" events that the UI listens to?
-       // Actually, let's update a specific "AI Typing Buffer" in the store.
-    }
+    currentBuffer += char;
+    store.getState().setAiTypingBuffer(currentBuffer);
     
     addEvent('TYPE_CHAR', { char, targetId: targetInputId }, 'ai');
     
     // Audio feedback
     const audio = new Audio('keyboard_clack.mp3');
-    audio.volume = 0.3;
+    audio.volume = 0.2 + Math.random() * 0.2;
     audio.play().catch(()=>{});
   }
 }
@@ -161,6 +182,11 @@ export const startAiLoop = () => {
   
   aiInterval = setInterval(async () => {
     const state = store.getState();
+    
+    // AI acts as an Observer. It only "works" visually when observed in AI mode.
+    // Otherwise it waits. This ensures coordinates are valid.
+    if (state.viewMode !== 'ai') return;
+    
     const unreadEmails = state.emails.filter(e => !e.read && e.to === 'ai@websim.ai');
     
     if (unreadEmails.length === 0 || state.aiStatus !== 'IDLE') return;
@@ -170,19 +196,19 @@ export const startAiLoop = () => {
     // 1. AI Notices Email
     store.setState({ aiStatus: 'MOVING' });
     
-    // 2. Move to Email in List (We assume the DOM ID is `email-item-${id}`)
+    // 2. Move to Email in List
     const listPos = getElementPos(`email-item-${targetEmail.id}`);
-    if (!listPos) return; // UI might not be rendered yet if in User View, but we assume AI View is mounted "virtually" or we switch context
+    if (!listPos) return; // Should exist if we are in AI view
     
     await moveMouseTo(listPos.x, listPos.y);
     
-    // 3. Click Email
-    addEvent('CLICK', { x: listPos.x, y: listPos.y, target: `email-item-${targetEmail.id}` }, 'ai');
-    new Audio('mouse_click.mp3').play().catch(()=>{});
+    // 3. Click Email to Open
+    await simulateClick(`email-item-${targetEmail.id}`);
     store.getState().markRead(targetEmail.id);
-    store.setState({ aiStatus: 'READING' });
+    store.getState().setReplyingTo(null); // Reset reply state when opening new email
     
-    await new Promise(r => setTimeout(r, 1500)); // Reading time
+    store.setState({ aiStatus: 'READING' });
+    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000)); // Variable Reading time
     
     // 4. Generate Reply with LLM
     store.setState({ aiStatus: 'THINKING' });
@@ -199,29 +225,32 @@ export const startAiLoop = () => {
         console.error("LLM Error", e);
     }
     
-    // 5. Move to Reply Button
+    // 5. Move to 'Reply' Button and Click it to open input
     const replyBtnPos = getElementPos('reply-btn');
     if (replyBtnPos) {
         store.setState({ aiStatus: 'MOVING' });
         await moveMouseTo(replyBtnPos.x, replyBtnPos.y);
-        addEvent('CLICK', { x: replyBtnPos.x, y: replyBtnPos.y, target: 'reply-btn' }, 'ai');
-        new Audio('mouse_click.mp3').play().catch(()=>{});
+        await simulateClick('reply-btn');
+        store.getState().setReplyingTo(targetEmail.id);
+        await new Promise(r => setTimeout(r, 400)); // UI transition wait
     }
 
     // 6. Type Response
     store.setState({ aiStatus: 'TYPING' });
-    // In our simplified sim, the AI adds the email to the system directly after "typing"
-    // We simulate the typing visually via events for the Replay, 
-    // but for logic we just wait and then send.
-    await typeText(replyText, 'reply-body');
+    // Now 'reply-body' textarea should be visible
+    const replyBodyPos = getElementPos('reply-body');
+    if (replyBodyPos) {
+        // Move to text area center just for effect
+        await moveMouseTo(replyBodyPos.x, replyBodyPos.y, 300);
+        await typeText(replyText, 'reply-body');
+    }
     
     // 7. Send
     const sendBtnPos = getElementPos('send-reply-btn');
     if (sendBtnPos) {
         store.setState({ aiStatus: 'MOVING' });
         await moveMouseTo(sendBtnPos.x, sendBtnPos.y);
-        addEvent('CLICK', { x: sendBtnPos.x, y: sendBtnPos.y, target: 'send-reply-btn' }, 'ai');
-        new Audio('mouse_click.mp3').play().catch(()=>{});
+        await simulateClick('send-reply-btn');
     }
     
     // Actual Logic Update
@@ -238,7 +267,9 @@ export const startAiLoop = () => {
     
     store.setState(prev => ({
         emails: [replyEmail, ...prev.emails],
-        aiStatus: 'IDLE'
+        aiStatus: 'IDLE',
+        aiTypingBuffer: "",
+        replyingToId: null
     }));
     addEvent('EMAIL_SENT', replyEmail, 'ai');
     

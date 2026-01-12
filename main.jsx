@@ -285,7 +285,9 @@ const App = () => {
             {
               email: selectedEmail,
               isAiView,
-              typingBuffer: state.aiStatus === "TYPING" ? "Typing..." : ""
+              typingBuffer: state.aiTypingBuffer,
+              replyingToId: state.replyingToId,
+              onReplyClick: () => store.getState().setReplyingTo(selectedEmail.id)
             },
             void 0,
             false,
@@ -299,29 +301,29 @@ const App = () => {
             /* @__PURE__ */ jsxDEV("div", { className: "absolute top-4 right-4 bg-black/80 text-cyan-400 p-4 rounded font-mono text-xs border border-cyan-800 shadow-2xl backdrop-blur-sm z-50", children: [
               /* @__PURE__ */ jsxDEV("div", { className: "mb-2 font-bold border-b border-cyan-900 pb-1", children: "SYSTEM STATUS" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 158,
+                lineNumber: 156,
                 columnNumber: 29
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between space-x-8 mb-1", children: [
                 /* @__PURE__ */ jsxDEV("span", { children: "MODE:" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 160,
+                  lineNumber: 158,
                   columnNumber: 33
                 }),
                 /* @__PURE__ */ jsxDEV("span", { className: "text-white", children: state.aiStatus }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 161,
+                  lineNumber: 159,
                   columnNumber: 33
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 159,
+                lineNumber: 157,
                 columnNumber: 29
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between space-x-8 mb-1", children: [
                 /* @__PURE__ */ jsxDEV("span", { children: "COORDS:" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 164,
+                  lineNumber: 162,
                   columnNumber: 33
                 }),
                 /* @__PURE__ */ jsxDEV("span", { className: "text-white", children: [
@@ -330,18 +332,18 @@ const App = () => {
                   Math.round(state.aiCursor.y)
                 ] }, void 0, true, {
                   fileName: "<stdin>",
-                  lineNumber: 165,
+                  lineNumber: 163,
                   columnNumber: 33
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 163,
+                lineNumber: 161,
                 columnNumber: 29
               }),
               /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between space-x-8", children: [
                 /* @__PURE__ */ jsxDEV("span", { children: "TASKS:" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 168,
+                  lineNumber: 166,
                   columnNumber: 33
                 }),
                 /* @__PURE__ */ jsxDEV("span", { className: "text-white", children: [
@@ -349,32 +351,44 @@ const App = () => {
                   " PENDING"
                 ] }, void 0, true, {
                   fileName: "<stdin>",
-                  lineNumber: 169,
+                  lineNumber: 167,
                   columnNumber: 33
                 })
               ] }, void 0, true, {
                 fileName: "<stdin>",
-                lineNumber: 167,
+                lineNumber: 165,
                 columnNumber: 29
               })
             ] }, void 0, true, {
               fileName: "<stdin>",
-              lineNumber: 157,
+              lineNumber: 155,
               columnNumber: 25
             }),
-            /* @__PURE__ */ jsxDEV(Cursor, { x: state.aiCursor.x, y: state.aiCursor.y, isAi: true, label: "AI AGENT" }, void 0, false, {
-              fileName: "<stdin>",
-              lineNumber: 172,
-              columnNumber: 25
-            }),
+            /* @__PURE__ */ jsxDEV(
+              Cursor,
+              {
+                x: state.aiCursor.x,
+                y: state.aiCursor.y,
+                isAi: true,
+                isClicking: state.aiClicking,
+                label: "AI AGENT"
+              },
+              void 0,
+              false,
+              {
+                fileName: "<stdin>",
+                lineNumber: 170,
+                columnNumber: 25
+              }
+            ),
             /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none retro-scanline z-40 opacity-50 mix-blend-multiply" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 174,
+              lineNumber: 178,
               columnNumber: 25
             })
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 156,
+            lineNumber: 154,
             columnNumber: 21
           })
         ] }, void 0, true, {
@@ -419,12 +433,12 @@ const App = () => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 190,
+          lineNumber: 194,
           columnNumber: 19
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 189,
+        lineNumber: 193,
         columnNumber: 15
       }),
       /* @__PURE__ */ jsxDEV(
@@ -435,12 +449,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 210,
+              lineNumber: 214,
               columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Return to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 211,
+              lineNumber: 215,
               columnNumber: 19
             })
           ]
@@ -449,13 +463,13 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 206,
+          lineNumber: 210,
           columnNumber: 15
         }
       )
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 188,
+      lineNumber: 192,
       columnNumber: 11
     });
   }
@@ -464,6 +478,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 221,
+  lineNumber: 225,
   columnNumber: 13
 }));
