@@ -142,7 +142,7 @@ const ReplayInterface = ({ state, isAi }) => {
     columnNumber: 9
   });
 };
-const EmailReplay = ({ eventLog, initialEmails, replayConfig }) => {
+const EmailReplay = ({ eventLog, initialEmails }) => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
   if (!eventLog || eventLog.length === 0) {
@@ -158,64 +158,26 @@ const EmailReplay = ({ eventLog, initialEmails, replayConfig }) => {
   }
   const startTime = eventLog[0].timestamp;
   const currentTime = startTime + frame / fps * 1e3;
-  const config = replayConfig || { type: "single", view: "ai" };
-  const isMerge = config.type === "merge";
-  const showUser = isMerge || config.view === "user";
-  const showAi = isMerge || config.view === "ai";
   const userState = reconstructState(eventLog, currentTime, initialEmails, "user");
   const aiState = reconstructState(eventLog, currentTime, initialEmails, "ai");
-  const BASE_WIDTH = 1280;
-  const BASE_HEIGHT = 720;
-  const ScaledView = ({ children }) => {
-    if (!isMerge) return /* @__PURE__ */ jsxDEV("div", { className: "w-full h-full relative", children }, void 0, false, {
+  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 146,
-      columnNumber: 27
-    });
-    const scaleX = 0.5;
-    return /* @__PURE__ */ jsxDEV("div", { className: "w-full h-full relative overflow-hidden", children: /* @__PURE__ */ jsxDEV("div", { style: {
-      width: "200%",
-      // Double width so when scaled by 0.5 it fits 100%
-      height: "100%",
-      transform: "scaleX(0.5)",
-      transformOrigin: "top left",
-      position: "absolute"
-    }, children }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 171,
-      columnNumber: 13
+      columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 170,
+      lineNumber: 145,
       columnNumber: 9
-    });
-  };
-  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch", children: [
-    showUser && /* @__PURE__ */ jsxDEV("div", { className: clsx("relative h-full", isMerge ? "w-1/2 border-r border-slate-800" : "w-full"), children: /* @__PURE__ */ jsxDEV(ScaledView, { children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 189,
-      columnNumber: 21
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 188,
-      columnNumber: 17
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 187,
-      columnNumber: 13
     }),
-    showAi && /* @__PURE__ */ jsxDEV("div", { className: clsx("relative h-full", isMerge ? "w-1/2" : "w-full"), children: /* @__PURE__ */ jsxDEV(ScaledView, { children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
+    /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 197,
-      columnNumber: 21
+      lineNumber: 151,
+      columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 196,
-      columnNumber: 17
-    }) }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 195,
-      columnNumber: 13
+      lineNumber: 150,
+      columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-4 right-4 font-mono text-xs text-cyan-400 bg-black/90 px-3 py-1 rounded z-50 border border-cyan-900/50 shadow-lg", children: [
       "T: ",
@@ -224,12 +186,12 @@ const EmailReplay = ({ eventLog, initialEmails, replayConfig }) => {
       frame
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 203,
+      lineNumber: 155,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 185,
+    lineNumber: 143,
     columnNumber: 5
   });
 };

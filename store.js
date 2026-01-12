@@ -39,8 +39,9 @@ export const addEvent = (type, payload, actor = 'user') => {
 
 // Global State
 export const store = createStore((set, get) => ({
-  viewMode: 'user', // 'user' | 'ai' | 'replay'
-  replayConfig: { type: 'single', view: 'user' },
+  viewMode: 'live', // 'live' | 'replay'
+  mobileView: 'user', // 'user' | 'ai'
+  replayConfig: { type: 'split' }, // Default to split
   
   // Email Data
   emails: INITIAL_EMAILS,
@@ -54,12 +55,15 @@ export const store = createStore((set, get) => ({
   aiStatus: 'IDLE', // 'IDLE' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING'
   aiTarget: null, // DOM Element ID to interact with
   replyingToId: null, // The email ID currently being replied to
+  aiActiveEmailId: null, // The email ID the AI is currently viewing
   aiTypingBuffer: "", // Live buffer for what AI is typing
   
   // Actions
   setViewMode: (mode) => set({ viewMode: mode }),
+  setMobileView: (view) => set({ mobileView: view }),
   setReplayConfig: (config) => set({ replayConfig: config }),
   setReplyingTo: (id) => set({ replyingToId: id }),
+  setAiActiveEmailId: (id) => set({ aiActiveEmailId: id }),
   setAiClicking: (isClicking) => set({ aiClicking: isClicking }),
   setAiTypingBuffer: (text) => set({ aiTypingBuffer: text }),
   
@@ -113,11 +117,11 @@ let aiMemory = {
 const getElementPos = (id) => {
   const el = document.getElementById(id);
   if (!el) return null;
+  // If element is hidden (e.g. display:none), dimensions are 0
+  if (el.offsetParent === null) return null;
   
-  // Only scroll if we are in AI view to avoid disrupting user
-  if (store.getState().viewMode === 'ai') {
-    el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-  }
+  // Scroll if necessary
+  el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   
   const rect = el.getBoundingClientRect();
   // Return center of element
@@ -198,13 +202,8 @@ export const startAiLoop = () => {
   aiInterval = setInterval(async () => {
     const state = store.getState();
     
-    // AI acts as an Observer. It only "works" visually when observed in AI mode.
-    // Otherwise it waits. This ensures coordinates are valid.
-    if (state.viewMode !== 'ai') return;
-    
-    // AI acts as an Observer. It only "works" visually when observed in AI mode.
-    // Otherwise it waits. This ensures coordinates are valid.
-    if (state.viewMode !== 'ai') return;
+    // AI acts as an Observer. It runs unless we are in Replay mode.
+    if (state.viewMode === 'replay') return;
     
     // Ensure AI is in Inbox mode to see incoming messages
     if (state.aiFolder !== 'inbox') {
@@ -224,13 +223,14 @@ export const startAiLoop = () => {
     
     // 2. Move to Email in List
     const listPos = getElementPos(`email-item-${targetEmail.id}`);
-    if (!listPos) return; // Should exist if we are in AI view
+    if (!listPos) return; // Element not visible (e.g. mobile view hidden)
     
     await moveMouseTo(listPos.x, listPos.y);
     
     // 3. Click Email to Open
     await simulateClick(`email-item-${targetEmail.id}`);
     store.getState().markRead(targetEmail.id);
+    store.getState().setAiActiveEmailId(targetEmail.id); // Update UI
     store.getState().setReplyingTo(null); // Reset reply state when opening new email
     
     store.setState({ aiStatus: 'READING' });
