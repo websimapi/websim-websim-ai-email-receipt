@@ -599,7 +599,10 @@ const App = () => {
     });
   };
   if (state.viewMode === "replay") {
-    const duration = Math.max(150, Math.ceil((Date.now() - (eventLog[0]?.timestamp || Date.now())) / 1e3 * 30));
+    const startTime = eventLog[0]?.timestamp || Date.now();
+    const endTime = eventLog[eventLog.length - 1]?.timestamp || Date.now();
+    const durationSeconds = (endTime - startTime) / 1e3;
+    const duration = Math.max(150, Math.ceil((durationSeconds + 5) * 30));
     return /* @__PURE__ */ jsxDEV("div", { className: "h-full w-full bg-black flex flex-col items-center justify-center p-4", children: [
       /* @__PURE__ */ jsxDEV("div", { className: "w-full aspect-video max-w-[1280px] bg-slate-900 border border-slate-800 shadow-2xl overflow-hidden relative mb-6", children: /* @__PURE__ */ jsxDEV(
         Player,
@@ -624,12 +627,12 @@ const App = () => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 391,
+          lineNumber: 397,
           columnNumber: 19
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 390,
+        lineNumber: 396,
         columnNumber: 15
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "w-full max-w-[1280px] flex justify-end mt-4", children: /* @__PURE__ */ jsxDEV(
@@ -640,12 +643,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 414,
+              lineNumber: 420,
               columnNumber: 23
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to Inbox" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 415,
+              lineNumber: 421,
               columnNumber: 23
             })
           ]
@@ -654,17 +657,17 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 410,
+          lineNumber: 416,
           columnNumber: 19
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 409,
+        lineNumber: 415,
         columnNumber: 15
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 389,
+      lineNumber: 395,
       columnNumber: 11
     });
   }
@@ -673,6 +676,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 426,
+  lineNumber: 432,
   columnNumber: 13
 }));

@@ -11,24 +11,13 @@ const TailwindLoader = () => {
       continueRender(handle);
       return;
     }
-    const existingScript = document.querySelector("#tailwind-cdn");
-    if (existingScript) {
-      if (existingScript.getAttribute("data-loaded") === "true") {
-        continueRender(handle);
-      } else {
-        existingScript.addEventListener("load", () => continueRender(handle));
-      }
-      return;
-    }
     const script = document.createElement("script");
-    script.id = "tailwind-cdn";
     script.src = "https://cdn.tailwindcss.com";
     script.onload = () => {
-      script.setAttribute("data-loaded", "true");
-      continueRender(handle);
+      setTimeout(() => continueRender(handle), 100);
     };
     script.onerror = () => {
-      console.error("Failed to load Tailwind CDN for Render");
+      console.warn("Tailwind failed to load in Render");
       continueRender(handle);
     };
     document.head.appendChild(script);
@@ -78,7 +67,7 @@ const GlobalStyles = () => /* @__PURE__ */ jsxDEV("style", { children: `
         }
     ` }, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 47,
+  lineNumber: 38,
   columnNumber: 5
 });
 const reconstructState = (eventLog, currentTime, initialEmails, actorFilter) => {
@@ -157,21 +146,21 @@ const ReplayInterface = ({ state, isAi }) => {
     ), children: [
       isAi ? /* @__PURE__ */ jsxDEV(Cpu, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 190,
+        lineNumber: 181,
         columnNumber: 25
       }) : /* @__PURE__ */ jsxDEV(User, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 190,
+        lineNumber: 181,
         columnNumber: 45
       }),
       /* @__PURE__ */ jsxDEV("span", { className: "font-bold text-sm tracking-wider", children: isAi ? "AI_VIEWPORT" : "USER_INBOX" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 191,
+        lineNumber: 182,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 188,
+      lineNumber: 179,
       columnNumber: 13
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -186,12 +175,12 @@ const ReplayInterface = ({ state, isAi }) => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 196,
+          lineNumber: 187,
           columnNumber: 21
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 195,
+        lineNumber: 186,
         columnNumber: 17
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "w-2/3 h-full relative", children: [
@@ -201,34 +190,35 @@ const ReplayInterface = ({ state, isAi }) => {
             email: state.selectedEmail,
             isAiView: isAi,
             typingBuffer: state.typingBuffer,
-            replyingToId: state.replyingToId
+            replyingToId: state.replyingToId,
+            isReplay: true
           },
           void 0,
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 203,
+            lineNumber: 194,
             columnNumber: 21
           }
         ),
         isAi && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 bg-cyan-900/5 pointer-events-none mix-blend-overlay retro-scanline" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 209,
+          lineNumber: 201,
           columnNumber: 30
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 202,
+        lineNumber: 193,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 194,
+      lineNumber: 185,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 186,
+    lineNumber: 177,
     columnNumber: 9
   });
 };
@@ -240,10 +230,13 @@ const AudioLayer = ({ eventLog, startTime }) => {
       const startFrame = Math.max(0, offset);
       if (e.type === "AUDIO_PLAY") {
         if (e.payload.sound === "notification") {
-          return [{ id: `notif_${i}`, src: staticFile("notification.mp3"), start: startFrame, volume: 0.6, duration: 60 }];
+          return [{ id: `notif_${i}`, src: staticFile("notification.mp3"), start: startFrame, volume: 0.6, duration: Infinity }];
         }
         if (e.payload.sound === "click") {
-          return [{ id: `click_${i}`, src: staticFile("mouse_click.mp3"), start: startFrame, volume: 0.5, duration: 15 }];
+          return [{ id: `click_${i}`, src: staticFile("mouse_click.mp3"), start: startFrame, volume: 0.5, duration: Infinity }];
+        }
+        if (e.payload.sound === "voice_message" && e.payload.url) {
+          return [{ id: `voice_${i}`, src: e.payload.url, start: startFrame, volume: 1, duration: Infinity }];
         }
       }
       if (e.type === "TYPE_CHAR" && e.payload.char.trim().length > 0) {
@@ -260,15 +253,15 @@ const AudioLayer = ({ eventLog, startTime }) => {
   }, [eventLog, startTime, fps]);
   return /* @__PURE__ */ jsxDEV(Fragment, { children: audioEvents.map((evt) => /* @__PURE__ */ jsxDEV(Sequence, { from: evt.start, durationInFrames: evt.duration, children: /* @__PURE__ */ jsxDEV(Audio, { src: evt.src, volume: evt.volume }, void 0, false, {
     fileName: "<stdin>",
-    lineNumber: 256,
+    lineNumber: 251,
     columnNumber: 21
   }) }, evt.id, false, {
     fileName: "<stdin>",
-    lineNumber: 255,
+    lineNumber: 250,
     columnNumber: 17
   })) }, void 0, false, {
     fileName: "<stdin>",
-    lineNumber: 253,
+    lineNumber: 248,
     columnNumber: 9
   });
 };
@@ -278,11 +271,11 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   if (!eventLog || eventLog.length === 0) {
     return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex items-center justify-center text-white", children: /* @__PURE__ */ jsxDEV("h1", { className: "text-4xl font-bold", children: "No Recording Data" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 271,
+      lineNumber: 266,
       columnNumber: 13
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 270,
+      lineNumber: 265,
       columnNumber: 9
     });
   }
@@ -290,23 +283,32 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   const currentTime = startTime + frame / fps * 1e3;
   const userState = reconstructState(eventLog, currentTime, initialEmails, "user");
   const aiState = reconstructState(eventLog, currentTime, initialEmails, "ai");
-  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden relative", children: [
+  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex flex-row items-stretch overflow-hidden relative font-sans text-white", children: [
     /* @__PURE__ */ jsxDEV(TailwindLoader, {}, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 284,
+      lineNumber: 279,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV(GlobalStyles, {}, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 285,
+      lineNumber: 280,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV(AudioLayer, { eventLog, startTime }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 286,
+      lineNumber: 281,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 285,
+      columnNumber: 14
+    }) }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 284,
+      columnNumber: 9
+    }),
+    /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 290,
       columnNumber: 14
@@ -315,28 +317,19 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
       lineNumber: 289,
       columnNumber: 9
     }),
-    /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 295,
-      columnNumber: 14
-    }) }, void 0, false, {
+    /* @__PURE__ */ jsxDEV(Cursor, { x: userState.cursor.x, y: userState.cursor.y, isAi: false, label: "USER" }, void 0, false, {
       fileName: "<stdin>",
       lineNumber: 294,
       columnNumber: 9
     }),
-    /* @__PURE__ */ jsxDEV(Cursor, { x: userState.cursor.x, y: userState.cursor.y, isAi: false, label: "USER" }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 299,
-      columnNumber: 9
-    }),
     /* @__PURE__ */ jsxDEV(Cursor, { x: aiState.cursor.x, y: aiState.cursor.y, isAi: true, label: "AI AGENT" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 300,
+      lineNumber: 295,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 283,
+    lineNumber: 278,
     columnNumber: 5
   });
 };
