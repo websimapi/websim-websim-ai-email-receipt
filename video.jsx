@@ -40,6 +40,9 @@ const reconstructState = (eventLog, currentTime, initialEmails, actorFilter) => 
         case "TYPE_CHAR":
           typingBuffer += e.payload.char;
           break;
+        case "TEXT_UPDATE":
+          typingBuffer = e.payload.text;
+          break;
         case "EMAIL_SENT":
           typingBuffer = "";
           replyingToId = null;
@@ -74,21 +77,21 @@ const ReplayInterface = ({ state, isAi }) => {
     ), children: [
       isAi ? /* @__PURE__ */ jsxDEV(Cpu, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 91,
+        lineNumber: 94,
         columnNumber: 25
       }) : /* @__PURE__ */ jsxDEV(User, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 91,
+        lineNumber: 94,
         columnNumber: 45
       }),
       /* @__PURE__ */ jsxDEV("span", { className: "font-bold text-sm tracking-wider", children: isAi ? "AI_VIEWPORT" : "USER_INBOX" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 92,
+        lineNumber: 95,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 89,
+      lineNumber: 92,
       columnNumber: 13
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -103,12 +106,12 @@ const ReplayInterface = ({ state, isAi }) => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 97,
+          lineNumber: 100,
           columnNumber: 21
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 96,
+        lineNumber: 99,
         columnNumber: 17
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "w-2/3 h-full relative", children: [
@@ -124,33 +127,33 @@ const ReplayInterface = ({ state, isAi }) => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 104,
+            lineNumber: 107,
             columnNumber: 21
           }
         ),
         isAi && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 bg-cyan-900/5 pointer-events-none mix-blend-overlay retro-scanline" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 110,
+          lineNumber: 113,
           columnNumber: 30
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 103,
+        lineNumber: 106,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 95,
+      lineNumber: 98,
       columnNumber: 13
     }),
     /* @__PURE__ */ jsxDEV(Cursor, { x: state.cursor.x, y: state.cursor.y, isAi, label: isAi ? "AI AGENT" : "USER" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 114,
+      lineNumber: 117,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 87,
+    lineNumber: 90,
     columnNumber: 9
   });
 };
@@ -160,11 +163,11 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   if (!eventLog || eventLog.length === 0) {
     return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex items-center justify-center text-white", children: /* @__PURE__ */ jsxDEV("h1", { className: "text-4xl font-bold", children: "No Recording Data" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 127,
+      lineNumber: 130,
       columnNumber: 13
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 126,
+      lineNumber: 129,
       columnNumber: 9
     });
   }
@@ -175,20 +178,20 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden", children: [
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 156,
+      lineNumber: 159,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 155,
+      lineNumber: 158,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 161,
+      lineNumber: 164,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 160,
+      lineNumber: 163,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-4 right-4 font-mono text-xs text-cyan-400 bg-black/90 px-3 py-1 rounded z-50 border border-cyan-900/50 shadow-lg", children: [
@@ -198,12 +201,12 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
       frame
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 165,
+      lineNumber: 168,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 153,
+    lineNumber: 156,
     columnNumber: 5
   });
 };

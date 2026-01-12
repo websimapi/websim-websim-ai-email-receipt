@@ -20,6 +20,30 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
   const folder = isAi ? state.aiFolder : state.userFolder;
   const userEmail = "user@websim.ai";
   const aiEmail = "ai@websim.ai";
+  const [userReplyDraft, setUserReplyDraft] = useState("");
+  useEffect(() => {
+    setUserReplyDraft("");
+  }, [selectedEmail?.id]);
+  const handleUserReplyChange = (text) => {
+    setUserReplyDraft(text);
+    if (!isAi) {
+      addEvent("TEXT_UPDATE", { text }, "user");
+    }
+  };
+  const handleSendReply = () => {
+    if (!userReplyDraft.trim() || !selectedEmail) return;
+    store.getState().sendEmail({
+      from: "user@websim.ai",
+      to: selectedEmail.from === "user@websim.ai" ? selectedEmail.to : selectedEmail.from,
+      subject: selectedEmail.subject.startsWith("Re:") ? selectedEmail.subject : `Re: ${selectedEmail.subject}`,
+      body: userReplyDraft,
+      folder: "sent"
+    });
+    setUserReplyDraft("");
+    store.getState().setReplyingTo(null);
+    addEvent("CLICK", { target: "send-reply-btn" }, "user");
+    addEvent("EMAIL_SENT", { id: "user_reply" }, "user");
+  };
   const displayedEmails = state.emails.filter((e) => {
     if (isAi) {
       return folder === "inbox" ? e.to === aiEmail : e.from === aiEmail;
@@ -38,46 +62,46 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
         /* @__PURE__ */ jsxDEV("div", { className: clsx("p-1.5 rounded-lg", isAi ? "bg-cyan-900 text-cyan-400" : "bg-blue-600 text-white"), children: isAi ? /* @__PURE__ */ jsxDEV(Monitor, { size: 18 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 44,
+          lineNumber: 77,
           columnNumber: 29
         }) : /* @__PURE__ */ jsxDEV(User, { size: 18 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 44,
+          lineNumber: 77,
           columnNumber: 53
         }) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 43,
+          lineNumber: 76,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("h2", { className: clsx("font-bold text-sm tracking-wider", isAi ? "text-cyan-400" : "text-slate-700"), children: isAi ? "AI_AGENT_VIEW" : "USER_INBOX" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 46,
+          lineNumber: 79,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 42,
+        lineNumber: 75,
         columnNumber: 13
       }),
       isAi && /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-xs font-mono text-cyan-600", children: [
         /* @__PURE__ */ jsxDEV("span", { className: clsx("w-2 h-2 rounded-full", state.aiStatus !== "IDLE" ? "bg-cyan-400 animate-pulse" : "bg-cyan-900") }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 52,
+          lineNumber: 85,
           columnNumber: 20
         }),
         /* @__PURE__ */ jsxDEV("span", { children: state.aiStatus }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 53,
+          lineNumber: 86,
           columnNumber: 20
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 51,
+        lineNumber: 84,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 40,
+      lineNumber: 73,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -99,12 +123,12 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             children: [
               /* @__PURE__ */ jsxDEV(SendIcon, { size: 14 }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 74,
+                lineNumber: 107,
                 columnNumber: 25
               }),
               /* @__PURE__ */ jsxDEV("span", { className: "hidden sm:inline", children: "Compose" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 75,
+                lineNumber: 108,
                 columnNumber: 25
               })
             ]
@@ -113,12 +137,12 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           true,
           {
             fileName: "<stdin>",
-            lineNumber: 63,
+            lineNumber: 96,
             columnNumber: 21
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 62,
+          lineNumber: 95,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV(
@@ -132,7 +156,7 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 79,
+            lineNumber: 112,
             columnNumber: 17
           }
         ),
@@ -148,26 +172,26 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 85,
+            lineNumber: 118,
             columnNumber: 17
           }
         )
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 61,
+        lineNumber: 94,
         columnNumber: 13
       }),
       /* @__PURE__ */ jsxDEV("div", { className: clsx("flex-1 flex flex-col relative", isAi ? "bg-slate-950" : "bg-white"), children: [
         !isAi && isComposeOpen ? /* @__PURE__ */ jsxDEV("div", { className: "p-4 md:p-8 w-full h-full overflow-auto", children: [
           /* @__PURE__ */ jsxDEV("h3", { className: "text-lg font-bold text-slate-800 mb-4", children: "New Message" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 97,
+            lineNumber: 130,
             columnNumber: 25
           }),
           /* @__PURE__ */ jsxDEV("div", { className: "space-y-4", children: [
             /* @__PURE__ */ jsxDEV("input", { disabled: true, value: "To: ai@websim.ai", className: "w-full p-2 text-sm border rounded bg-slate-50 text-slate-500" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 99,
+              lineNumber: 132,
               columnNumber: 29
             }),
             /* @__PURE__ */ jsxDEV(
@@ -182,49 +206,55 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
               false,
               {
                 fileName: "<stdin>",
-                lineNumber: 100,
+                lineNumber: 133,
                 columnNumber: 29
               }
             ),
             /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end space-x-2", children: [
               /* @__PURE__ */ jsxDEV("button", { onClick: () => setIsComposeOpen(false), className: "px-4 py-2 text-sm text-slate-500", children: "Cancel" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 107,
+                lineNumber: 140,
                 columnNumber: 33
               }),
               /* @__PURE__ */ jsxDEV("button", { id: "send-user-btn", onClick: handleUserSend, className: "px-6 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700", children: "Send" }, void 0, false, {
                 fileName: "<stdin>",
-                lineNumber: 108,
+                lineNumber: 141,
                 columnNumber: 33
               })
             ] }, void 0, true, {
               fileName: "<stdin>",
-              lineNumber: 106,
+              lineNumber: 139,
               columnNumber: 29
             })
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 98,
+            lineNumber: 131,
             columnNumber: 25
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 96,
+          lineNumber: 129,
           columnNumber: 22
         }) : /* @__PURE__ */ jsxDEV(
           EmailReader,
           {
             email: selectedEmail,
             isAiView: isAi,
-            typingBuffer: state.aiTypingBuffer,
+            typingBuffer: isAi ? state.aiTypingBuffer : "",
             replyingToId: state.replyingToId,
-            onReplyClick: () => store.getState().setReplyingTo(selectedEmail.id)
+            onReplyClick: () => {
+              store.getState().setReplyingTo(selectedEmail.id);
+              if (!isAi) addEvent("CLICK", { target: "reply-btn" }, "user");
+            },
+            userReplyDraft,
+            setUserReplyDraft: !isAi ? handleUserReplyChange : void 0,
+            onSendReply: !isAi ? handleSendReply : void 0
           },
           void 0,
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 113,
+            lineNumber: 146,
             columnNumber: 21
           }
         ),
@@ -242,33 +272,33 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             false,
             {
               fileName: "<stdin>",
-              lineNumber: 125,
+              lineNumber: 164,
               columnNumber: 25
             }
           ),
           /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none retro-scanline z-40 opacity-30 mix-blend-overlay" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 132,
+            lineNumber: 171,
             columnNumber: 25
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 124,
+          lineNumber: 163,
           columnNumber: 21
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 94,
+        lineNumber: 127,
         columnNumber: 13
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 59,
+      lineNumber: 92,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 36,
+    lineNumber: 69,
     columnNumber: 7
   });
 };
@@ -326,17 +356,17 @@ const App = () => {
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-slate-400 font-mono text-xs", children: [
           /* @__PURE__ */ jsxDEV("span", { className: "w-2 h-2 bg-green-500 rounded-full" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 222,
+            lineNumber: 261,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: "SYSTEM_ONLINE" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 223,
+            lineNumber: 262,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { className: "text-slate-600", children: "|" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 224,
+            lineNumber: 263,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: [
@@ -344,12 +374,12 @@ const App = () => {
             " MESSAGES"
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 225,
+            lineNumber: 264,
             columnNumber: 21
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 221,
+          lineNumber: 260,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
@@ -361,12 +391,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(ArrowRightLeft, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 235,
+                  lineNumber: 274,
                   columnNumber: 29
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "Switch View" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 236,
+                  lineNumber: 275,
                   columnNumber: 29
                 })
               ]
@@ -375,7 +405,7 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 231,
+              lineNumber: 270,
               columnNumber: 25
             }
           ),
@@ -389,12 +419,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(Play, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 246,
+                  lineNumber: 285,
                   columnNumber: 25
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "REPLAY SESSION" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 247,
+                  lineNumber: 286,
                   columnNumber: 25
                 })
               ]
@@ -403,18 +433,18 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 240,
+              lineNumber: 279,
               columnNumber: 22
             }
           )
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 228,
+          lineNumber: 267,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 220,
+        lineNumber: 259,
         columnNumber: 14
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -438,12 +468,12 @@ const App = () => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 256,
+            lineNumber: 295,
             columnNumber: 25
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 255,
+          lineNumber: 294,
           columnNumber: 21
         }),
         showAi && /* @__PURE__ */ jsxDEV("div", { className: clsx("h-full relative z-0", isMobile ? "w-full" : "w-1/2"), children: /* @__PURE__ */ jsxDEV(
@@ -459,22 +489,22 @@ const App = () => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 279,
+            lineNumber: 318,
             columnNumber: 26
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 274,
+          lineNumber: 313,
           columnNumber: 21
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 253,
+        lineNumber: 292,
         columnNumber: 14
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 218,
+      lineNumber: 257,
       columnNumber: 9
     });
   };
@@ -503,7 +533,7 @@ const App = () => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 309,
+          lineNumber: 348,
           columnNumber: 19
         }
       ),
@@ -515,12 +545,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 14 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 329,
+              lineNumber: 368,
               columnNumber: 23
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 330,
+              lineNumber: 369,
               columnNumber: 23
             })
           ]
@@ -529,17 +559,17 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 325,
+          lineNumber: 364,
           columnNumber: 19
         }
       )
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 308,
+      lineNumber: 347,
       columnNumber: 15
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 307,
+      lineNumber: 346,
       columnNumber: 11
     });
   }
@@ -548,6 +578,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 341,
+  lineNumber: 380,
   columnNumber: 13
 }));
