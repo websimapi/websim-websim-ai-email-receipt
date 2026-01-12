@@ -11,7 +11,7 @@ export const INITIAL_EMAILS = [
     folder: 'inbox',
     read: false,
     starred: false,
-    timestamp: Date.now()
+    timestamp: 1715421600000
   },
   {
     id: 'msg_1',
@@ -22,7 +22,7 @@ export const INITIAL_EMAILS = [
     folder: 'inbox',
     read: false,
     starred: true,
-    timestamp: Date.now()
+    timestamp: 1715421660000
   }
 ];
 

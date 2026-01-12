@@ -1,6 +1,6 @@
 import { Fragment, jsxDEV } from "react/jsx-dev-runtime";
 import React, { useMemo } from "react";
-import { AbsoluteFill, useCurrentFrame, useVideoConfig, Sequence, interpolate, Audio } from "remotion";
+import { AbsoluteFill, useCurrentFrame, useVideoConfig, Sequence, interpolate, Audio, staticFile } from "remotion";
 import { EmailList, EmailReader, Cursor } from "./components.jsx";
 import { Inbox, Cpu, User } from "lucide-react";
 import clsx from "clsx";
@@ -148,11 +148,6 @@ const ReplayInterface = ({ state, isAi }) => {
       fileName: "<stdin>",
       lineNumber: 110,
       columnNumber: 13
-    }),
-    /* @__PURE__ */ jsxDEV(Cursor, { x: state.cursor.x, y: state.cursor.y, isAi, label: isAi ? "AI AGENT" : "USER" }, void 0, false, {
-      fileName: "<stdin>",
-      lineNumber: 129,
-      columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
@@ -167,28 +162,28 @@ const AudioLayer = ({ eventLog, startTime }) => {
       const offset = (e.timestamp - startTime) * fps / 1e3;
       const startFrame = Math.max(0, offset);
       if (e.type === "CLICK") {
-        return [{ id: `click_${i}`, src: "/mouse_click.mp3", start: startFrame, volume: 0.5, duration: 15 }];
+        return [{ id: `click_${i}`, src: staticFile("mouse_click.mp3"), start: startFrame, volume: 0.5, duration: 15 }];
       }
       if (e.type === "TYPE_CHAR" && e.payload.char.trim().length > 0) {
-        return [{ id: `type_${i}`, src: "/keyboard_clack.mp3", start: startFrame, volume: 0.2, duration: 10 }];
+        return [{ id: `type_${i}`, src: staticFile("keyboard_clack.mp3"), start: startFrame, volume: 0.2, duration: 10 }];
       }
       if (e.type === "EMAIL_RECEIVED") {
-        return [{ id: `notif_${i}`, src: "/notification.mp3", start: startFrame, volume: 0.6, duration: 60 }];
+        return [{ id: `notif_${i}`, src: staticFile("notification.mp3"), start: startFrame, volume: 0.6, duration: 60 }];
       }
       return [];
     });
   }, [eventLog, startTime, fps]);
   return /* @__PURE__ */ jsxDEV(Fragment, { children: audioEvents.map((evt) => /* @__PURE__ */ jsxDEV(Sequence, { from: evt.start, durationInFrames: evt.duration, children: /* @__PURE__ */ jsxDEV(Audio, { src: evt.src, volume: evt.volume }, void 0, false, {
     fileName: "<stdin>",
-    lineNumber: 160,
+    lineNumber: 158,
     columnNumber: 21
   }) }, evt.id, false, {
     fileName: "<stdin>",
-    lineNumber: 159,
+    lineNumber: 157,
     columnNumber: 17
   })) }, void 0, false, {
     fileName: "<stdin>",
-    lineNumber: 157,
+    lineNumber: 155,
     columnNumber: 9
   });
 };
@@ -198,11 +193,11 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   if (!eventLog || eventLog.length === 0) {
     return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex items-center justify-center text-white", children: /* @__PURE__ */ jsxDEV("h1", { className: "text-4xl font-bold", children: "No Recording Data" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 175,
+      lineNumber: 173,
       columnNumber: 13
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 174,
+      lineNumber: 172,
       columnNumber: 9
     });
   }
@@ -210,33 +205,43 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   const currentTime = startTime + frame / fps * 1e3;
   const userState = reconstructState(eventLog, currentTime, initialEmails, "user");
   const aiState = reconstructState(eventLog, currentTime, initialEmails, "ai");
-  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden", children: [
+  return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden relative", children: [
     /* @__PURE__ */ jsxDEV(AudioLayer, { eventLog, startTime }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 188,
+      lineNumber: 186,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 192,
+      lineNumber: 190,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 191,
+      lineNumber: 189,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 197,
+      lineNumber: 195,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 196,
+      lineNumber: 194,
+      columnNumber: 9
+    }),
+    /* @__PURE__ */ jsxDEV(Cursor, { x: userState.cursor.x, y: userState.cursor.y, isAi: false, label: "USER" }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 199,
+      columnNumber: 9
+    }),
+    /* @__PURE__ */ jsxDEV(Cursor, { x: aiState.cursor.x, y: aiState.cursor.y, isAi: true, label: "AI AGENT" }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 200,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 187,
+    lineNumber: 185,
     columnNumber: 5
   });
 };

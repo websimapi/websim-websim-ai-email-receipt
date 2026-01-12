@@ -566,12 +566,12 @@ const EmailReader = ({
     columnNumber: 5
   });
 };
-const Cursor = ({ x, y, label, isAi, isClicking }) => {
+const Cursor = ({ x, y, label, isAi, isClicking, fixed = false }) => {
   return /* @__PURE__ */ jsxDEV(
     "div",
     {
-      className: clsx("ai-cursor fixed top-0 left-0 pointer-events-none", isClicking && "cursor-active"),
-      style: { transform: `translate(${x}px, ${y}px)` },
+      className: clsx("ai-cursor top-0 left-0 pointer-events-none", fixed ? "fixed" : "absolute", isClicking && "cursor-active"),
+      style: { transform: `translate(${x}px, ${y}px)`, zIndex: 9999 },
       children: [
         /* @__PURE__ */ jsxDEV("div", { className: "cursor-ring" }, void 0, false, {
           fileName: "<stdin>",
