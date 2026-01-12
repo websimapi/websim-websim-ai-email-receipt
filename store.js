@@ -124,6 +124,22 @@ let aiMemory = {
   lastProcessedEmailId: null
 };
 
+const urlToDataUrl = async (url) => {
+    try {
+        const response = await fetch(url);
+        const blob = await response.blob();
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onloadend = () => resolve(reader.result);
+            reader.onerror = reject;
+            reader.readAsDataURL(blob);
+        });
+    } catch (e) {
+        console.error("Failed to convert URL to DataURL", e);
+        return null;
+    }
+};
+
 // Helper to get element position and dimensions
 const getElementPos = (id) => {
   const el = document.getElementById(id);
@@ -254,7 +270,7 @@ export const startAiLoop = () => {
     if (!listPos) return;
     
     store.getState().setAiVisionFocus({ ...listPos.rect, label: 'TARGET_ACQUIRED' });
-    await new Promise(r => setTimeout(r, 400)); // Simulate processing time
+    await new Promise(r => setTimeout(r, 400));
     
     // 2. Move to Email in List
     store.setState({ aiStatus: 'MOVING' });
@@ -272,97 +288,118 @@ export const startAiLoop = () => {
     // Vision: Scan the content area
     const bodyPos = getElementPos('email-body-content');
     if (bodyPos) {
-        store.getState().setAiVisionFocus({ ...bodyPos.rect, label: 'ANALYZING_TEXT' });
+        store.getState().setAiVisionFocus({ ...bodyPos.rect, label: 'READING_TEXT' });
     }
-    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+    await new Promise(r => setTimeout(r, 800 + Math.random() * 500));
     
-    // 3b. DECISION: Is this important? (Random chance for demo)
-    const isImportant = Math.random() > 0.6;
-    if (isImportant) {
-        store.setState({ aiStatus: 'MOVING' });
-        const starPos = getElementPos('reader-star-btn');
-        if (starPos) {
-            store.getState().setAiVisionFocus({ ...starPos.rect, label: 'MARKING_IMPORTANT' });
-            await moveMouseTo(starPos.x, starPos.y);
-            await simulateClick('reader-star-btn');
-            store.getState().toggleStar(targetEmail.id, 'ai');
+    // 3a. Visual Analysis Pass (New Agentic Step)
+    let visualContext = "";
+    if (targetEmail.attachment) {
+        store.setState({ aiStatus: 'ANALYZING_VISUALS' });
+        // Shift focus to attachment
+        const attachPos = getElementPos('email-body-content'); // Approximate
+        if (attachPos) store.getState().setAiVisionFocus({ ...attachPos.rect, label: 'PROCESSING_IMAGE_DATA' });
+        
+        try {
+            // Specialized Vision Pass
+            const analysisCompletion = await websim.chat.completions.create({
+                messages: [
+                    { role: "user", content: [
+                        { type: "text", text: "You are the Vision Module. Analyze this image in technical detail. Describe the subject, composition, style, and any text present." },
+                        { type: "image_url", image_url: { url: targetEmail.attachment } }
+                    ]}
+                ]
+            });
+            visualContext = analysisCompletion.content;
+            console.log("Vision Analysis:", visualContext);
             store.getState().setAiVisionFocus(null);
-            await new Promise(r => setTimeout(r, 300));
+        } catch (e) {
+            console.error("Vision Error", e);
+            visualContext = "Visual analysis failed.";
         }
     }
 
-    // 4. Generate Reply with LLM
+    // 4. Planning & Decision
     store.setState({ aiStatus: 'THINKING' });
     let replyText = "Receipt acknowledged.";
     let generatedImageUrl = null;
+    let generatedVoiceUrl = null;
     
     try {
-        const messages = [
-            { 
-                role: "system", 
-                content: `You are an advanced AI assistant. Analyze the incoming email. 
-Respond with a JSON object strictly following this schema:
-{
-  "reply_text": "string (brief robotic polite reply, max 2 sentences)",
-  "should_generate_image": boolean (true if user asks for image or you decide to make one),
-  "image_prompt": "string (prompt for image generation, if applicable)",
-  "use_attachment_as_source": boolean (true if attached image should be used as img2img source)
-}
-` 
-            }
-        ];
+        const systemPrompt = `You are an advanced AI agent named "System".
+        Analyze the incoming email and the provided visual context (if any).
         
-        const userContent = [
-            { type: "text", text: `Subject: ${targetEmail.subject}\nBody: ${targetEmail.body}` }
-        ];
+        Capabilities:
+        1. Reply with text (keep it brief, slightly robotic but helpful).
+        2. Generate NEW images (if user asks to "make", "create", "generate" an image).
+        3. Modify attached images (if user asks to "change", "edit", "fix", "style" the attachment).
+        4. Generate TTS Voice Audio (if user asks for voice/speech, or if you want to emphasize a point).
         
-        if (targetEmail.attachment) {
-            userContent.push({ type: "image_url", image_url: { url: targetEmail.attachment } });
-            userContent.push({ type: "text", text: "(An image is attached. Analyze it.)" });
-        }
+        Respond with this JSON structure:
+        {
+          "reply_text": "string",
+          "image_action": "none" | "generate" | "modify",
+          "image_prompt": "string (the prompt for the image generator)",
+          "voice_action": boolean (true if voice should be generated),
+          "voice_text": "string (the text to be spoken)"
+        }`;
+
+        const userMessage = `
+        Sender: ${targetEmail.from}
+        Subject: ${targetEmail.subject}
+        Body: ${targetEmail.body}
         
-        messages.push({ role: "user", content: userContent });
+        [INTERNAL_VISUAL_ANALYSIS_LOG]:
+        ${visualContext || "No visual attachment detected."}
+        `;
 
         const completion = await websim.chat.completions.create({
-            messages,
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: userMessage, json: true }
+            ],
             json: true
         });
         
-        const result = JSON.parse(completion.content);
-        replyText = result.reply_text || "Processing complete.";
+        const plan = JSON.parse(completion.content);
+        replyText = plan.reply_text || "Processed.";
         
-        if (result.should_generate_image) {
+        // Execute Plan - Image
+        if (plan.image_action !== 'none') {
             store.setState({ aiStatus: 'GENERATING_ART' });
             
-            // Generate Image
             const genOptions = {
-                prompt: result.image_prompt || "Abstract digital art",
+                prompt: plan.image_prompt || "Abstract data visualization",
                 aspect_ratio: "16:9"
             };
             
-            if (result.use_attachment_as_source && targetEmail.attachment) {
-                try {
-                    const resp = await fetch(targetEmail.attachment);
-                    const blob = await resp.blob();
-                    const reader = new FileReader();
-                    const dataUrl = await new Promise(resolve => {
-                        reader.onloadend = () => resolve(reader.result);
-                        reader.readAsDataURL(blob);
-                    });
+            if (plan.image_action === 'modify' && targetEmail.attachment) {
+                 const dataUrl = await urlToDataUrl(targetEmail.attachment);
+                 if (dataUrl) {
                     genOptions.image_inputs = [{ url: dataUrl }];
-                    genOptions.prompt = result.image_prompt || "Enhance this image";
-                } catch(err) {
-                    console.error("Failed to process input image", err);
-                }
+                    // For img2img, the prompt drives the modification
+                 }
             }
             
             const imgResult = await websim.imageGen(genOptions);
             generatedImageUrl = imgResult.url;
-            store.setState({ aiStatus: 'THINKING' }); 
+            
+            store.setState({ aiStatus: 'THINKING' }); // Reset status briefly
+        }
+        
+        // Execute Plan - Voice
+        if (plan.voice_action) {
+            store.setState({ aiStatus: 'RECORDING_VOICE' });
+            const voiceResult = await websim.textToSpeech({
+                text: plan.voice_text || replyText,
+                voice: "en-US-male-medium"
+            });
+            generatedVoiceUrl = voiceResult.url;
         }
 
     } catch (e) {
-        console.error("LLM Error", e);
+        console.error("Agent Logic Error", e);
+        replyText = "Error processing request.";
     }
     
     // 5. Move to 'Reply' Button
@@ -377,17 +414,20 @@ Respond with a JSON object strictly following this schema:
         await new Promise(r => setTimeout(r, 400));
     }
 
-    // 6. Type Response
+    // 6. Type Response & Attach
     store.setState({ aiStatus: 'TYPING' });
-    // Now 'reply-body' textarea should be visible
     const replyBodyPos = getElementPos('reply-body');
     if (replyBodyPos) {
-        // Move to text area center just for effect
         await moveMouseTo(replyBodyPos.x, replyBodyPos.y, 300);
         
+        // Simulate uploading/attaching if we have generated assets
         if (generatedImageUrl) {
-             store.getState().setAiTypingBuffer("[UPLOADING_GENERATED_ASSET...]");
-             await new Promise(r => setTimeout(r, 1500));
+             store.getState().setAiTypingBuffer("[UPLOADING_IMAGE_ASSET...]");
+             await new Promise(r => setTimeout(r, 1000));
+        }
+        if (generatedVoiceUrl) {
+             store.getState().setAiTypingBuffer("[ENCODING_AUDIO_STREAM...]");
+             await new Promise(r => setTimeout(r, 1000));
         }
 
         await typeText(replyText, 'reply-body');
@@ -409,6 +449,7 @@ Respond with a JSON object strictly following this schema:
         subject: `Re: ${targetEmail.subject}`,
         body: replyText,
         attachment: generatedImageUrl,
+        audioAttachment: generatedVoiceUrl,
         folder: 'sent',
         read: true,
         timestamp: Date.now()
