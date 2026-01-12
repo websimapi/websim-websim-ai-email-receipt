@@ -191,6 +191,10 @@ async function simulateClick(targetId) {
     addEvent('CLICK', { target: targetId }, 'ai');
 }
 
+// Audio pool to prevent lag/glitches during rapid typing
+const typingAudioPool = Array.from({ length: 8 }, () => new Audio('keyboard_clack.mp3'));
+let typingPoolIndex = 0;
+
 async function typeText(text, targetInputId) {
   addEvent('FOCUS_INPUT', { id: targetInputId }, 'ai');
   let currentBuffer = "";
@@ -205,10 +209,16 @@ async function typeText(text, targetInputId) {
     
     addEvent('TYPE_CHAR', { char, targetId: targetInputId }, 'ai');
     
-    // Audio feedback
-    const audio = new Audio('keyboard_clack.mp3');
-    audio.volume = 0.2 + Math.random() * 0.2;
-    audio.play().catch(()=>{});
+    // Audio feedback: Only play for non-whitespace characters to prevent muddiness
+    if (char.trim().length > 0) {
+      const audio = typingAudioPool[typingPoolIndex];
+      if (audio) {
+        audio.currentTime = 0;
+        audio.volume = 0.15 + Math.random() * 0.15; // Slightly reduced volume
+        audio.play().catch(()=>{});
+        typingPoolIndex = (typingPoolIndex + 1) % typingAudioPool.length;
+      }
+    }
   }
 }
 
