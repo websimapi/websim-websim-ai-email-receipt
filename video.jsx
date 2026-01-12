@@ -17,6 +17,9 @@ const reconstructState = (eventLog, currentTime, initialEmails, actorFilter) => 
         emails = [e.payload, ...emails];
       }
     }
+    if (e.type === "TOGGLE_STAR") {
+      emails = emails.map((em) => em.id === e.payload.id ? { ...em, starred: !em.starred } : em);
+    }
     if (e.actor === actorFilter) {
       switch (e.type) {
         case "MOUSE_MOVE":
@@ -46,6 +49,9 @@ const reconstructState = (eventLog, currentTime, initialEmails, actorFilter) => 
         case "EMAIL_SENT":
           typingBuffer = "";
           replyingToId = null;
+          break;
+        case "TOGGLE_STAR":
+          emails = emails.map((em) => em.id === e.payload.id ? { ...em, starred: !em.starred } : em);
           break;
       }
     }
@@ -77,21 +83,21 @@ const ReplayInterface = ({ state, isAi }) => {
     ), children: [
       isAi ? /* @__PURE__ */ jsxDEV(Cpu, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 94,
+        lineNumber: 109,
         columnNumber: 25
       }) : /* @__PURE__ */ jsxDEV(User, { size: 18 }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 94,
+        lineNumber: 109,
         columnNumber: 45
       }),
       /* @__PURE__ */ jsxDEV("span", { className: "font-bold text-sm tracking-wider", children: isAi ? "AI_VIEWPORT" : "USER_INBOX" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 95,
+        lineNumber: 110,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 92,
+      lineNumber: 107,
       columnNumber: 13
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -106,12 +112,12 @@ const ReplayInterface = ({ state, isAi }) => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 100,
+          lineNumber: 115,
           columnNumber: 21
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 99,
+        lineNumber: 114,
         columnNumber: 17
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "w-2/3 h-full relative", children: [
@@ -127,33 +133,33 @@ const ReplayInterface = ({ state, isAi }) => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 107,
+            lineNumber: 122,
             columnNumber: 21
           }
         ),
         isAi && /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 bg-cyan-900/5 pointer-events-none mix-blend-overlay retro-scanline" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 113,
+          lineNumber: 128,
           columnNumber: 30
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 106,
+        lineNumber: 121,
         columnNumber: 17
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 98,
+      lineNumber: 113,
       columnNumber: 13
     }),
     /* @__PURE__ */ jsxDEV(Cursor, { x: state.cursor.x, y: state.cursor.y, isAi, label: isAi ? "AI AGENT" : "USER" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 117,
+      lineNumber: 132,
       columnNumber: 13
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 90,
+    lineNumber: 105,
     columnNumber: 9
   });
 };
@@ -163,11 +169,11 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   if (!eventLog || eventLog.length === 0) {
     return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-slate-950 flex items-center justify-center text-white", children: /* @__PURE__ */ jsxDEV("h1", { className: "text-4xl font-bold", children: "No Recording Data" }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 130,
+      lineNumber: 145,
       columnNumber: 13
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 129,
+      lineNumber: 144,
       columnNumber: 9
     });
   }
@@ -178,20 +184,20 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
   return /* @__PURE__ */ jsxDEV(AbsoluteFill, { className: "bg-black flex flex-row items-stretch overflow-hidden", children: [
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative border-r border-slate-800", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: userState, isAi: false }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 159,
+      lineNumber: 174,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 158,
+      lineNumber: 173,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "w-1/2 h-full relative", children: /* @__PURE__ */ jsxDEV(ReplayInterface, { state: aiState, isAi: true }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 164,
+      lineNumber: 179,
       columnNumber: 14
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 163,
+      lineNumber: 178,
       columnNumber: 9
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-4 right-4 font-mono text-xs text-cyan-400 bg-black/90 px-3 py-1 rounded z-50 border border-cyan-900/50 shadow-lg", children: [
@@ -201,12 +207,12 @@ const EmailReplay = ({ eventLog, initialEmails }) => {
       frame
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 168,
+      lineNumber: 183,
       columnNumber: 9
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 156,
+    lineNumber: 171,
     columnNumber: 5
   });
 };

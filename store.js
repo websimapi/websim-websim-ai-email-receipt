@@ -10,6 +10,7 @@ export const INITIAL_EMAILS = [
     body: 'You are an AI agent. Your job is to read emails and reply to them. Use the interface provided.',
     folder: 'inbox',
     read: false,
+    starred: false,
     timestamp: Date.now()
   },
   {
@@ -20,6 +21,7 @@ export const INITIAL_EMAILS = [
     body: 'Welcome User. You can communicate with the AI agent by sending emails to ai@websim.ai.',
     folder: 'inbox',
     read: false,
+    starred: true,
     timestamp: Date.now()
   }
 ];
@@ -52,11 +54,12 @@ export const store = createStore((set, get) => ({
   // AI State
   aiCursor: { x: 500, y: 300 },
   aiClicking: false,
-  aiStatus: 'IDLE', // 'IDLE' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING'
+  aiStatus: 'IDLE', // 'IDLE' | 'SCANNING' | 'READING' | 'THINKING' | 'TYPING' | 'MOVING' | 'WAITING'
   aiTarget: null, // DOM Element ID to interact with
   replyingToId: null, // The email ID currently being replied to
   aiActiveEmailId: null, // The email ID the AI is currently viewing
   aiTypingBuffer: "", // Live buffer for what AI is typing
+  aiVisionFocus: null, // { x, y, width, height, label }
   
   // Actions
   setViewMode: (mode) => set({ viewMode: mode }),
@@ -66,7 +69,15 @@ export const store = createStore((set, get) => ({
   setAiActiveEmailId: (id) => set({ aiActiveEmailId: id }),
   setAiClicking: (isClicking) => set({ aiClicking: isClicking }),
   setAiTypingBuffer: (text) => set({ aiTypingBuffer: text }),
+  setAiVisionFocus: (focus) => set({ aiVisionFocus: focus }),
   
+  toggleStar: (id, actor = 'user') => {
+    set(state => ({
+      emails: state.emails.map(e => e.id === id ? { ...e, starred: !e.starred } : e)
+    }));
+    addEvent('TOGGLE_STAR', { id }, actor);
+  },
+
   sendEmail: (email) => {
     const newEmail = {
       ...email,
@@ -113,7 +124,7 @@ let aiMemory = {
   lastProcessedEmailId: null
 };
 
-// Helper to get element position
+// Helper to get element position and dimensions
 const getElementPos = (id) => {
   const el = document.getElementById(id);
   if (!el) return null;
@@ -124,10 +135,11 @@ const getElementPos = (id) => {
   el.scrollIntoView({ behavior: 'smooth', block: 'center' });
   
   const rect = el.getBoundingClientRect();
-  // Return center of element
+  // Return center and dimensions
   return { 
     x: rect.left + rect.width / 2, 
-    y: rect.top + rect.height / 2 
+    y: rect.top + rect.height / 2,
+    rect: { x: rect.left, y: rect.top, width: rect.width, height: rect.height }
   };
 };
 
@@ -224,24 +236,51 @@ export const startAiLoop = () => {
     
     const targetEmail = unreadEmails[0];
     
-    // 1. AI Notices Email
-    store.setState({ aiStatus: 'MOVING' });
+    // 1. AI Notices Email - SCANNING PHASE
+    store.setState({ aiStatus: 'SCANNING' });
+    
+    // Vision: Identify target in list
+    const listPos = getElementPos(`email-item-${targetEmail.id}`);
+    if (!listPos) return;
+    
+    store.getState().setAiVisionFocus({ ...listPos.rect, label: 'TARGET_ACQUIRED' });
+    await new Promise(r => setTimeout(r, 400)); // Simulate processing time
     
     // 2. Move to Email in List
-    const listPos = getElementPos(`email-item-${targetEmail.id}`);
-    if (!listPos) return; // Element not visible (e.g. mobile view hidden)
-    
+    store.setState({ aiStatus: 'MOVING' });
     await moveMouseTo(listPos.x, listPos.y);
     
     // 3. Click Email to Open
     await simulateClick(`email-item-${targetEmail.id}`);
     store.getState().markRead(targetEmail.id);
-    store.getState().setAiActiveEmailId(targetEmail.id); // Update UI
-    store.getState().setReplyingTo(null); // Reset reply state when opening new email
+    store.getState().setAiActiveEmailId(targetEmail.id);
+    store.getState().setReplyingTo(null);
+    store.getState().setAiVisionFocus(null); // Clear focus
     
     store.setState({ aiStatus: 'READING' });
-    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000)); // Variable Reading time
     
+    // Vision: Scan the content area
+    const bodyPos = getElementPos('email-body-content');
+    if (bodyPos) {
+        store.getState().setAiVisionFocus({ ...bodyPos.rect, label: 'ANALYZING_TEXT' });
+    }
+    await new Promise(r => setTimeout(r, 1000 + Math.random() * 1000));
+    
+    // 3b. DECISION: Is this important? (Random chance for demo)
+    const isImportant = Math.random() > 0.6;
+    if (isImportant) {
+        store.setState({ aiStatus: 'MOVING' });
+        const starPos = getElementPos('reader-star-btn');
+        if (starPos) {
+            store.getState().setAiVisionFocus({ ...starPos.rect, label: 'MARKING_IMPORTANT' });
+            await moveMouseTo(starPos.x, starPos.y);
+            await simulateClick('reader-star-btn');
+            store.getState().toggleStar(targetEmail.id, 'ai');
+            store.getState().setAiVisionFocus(null);
+            await new Promise(r => setTimeout(r, 300));
+        }
+    }
+
     // 4. Generate Reply with LLM
     store.setState({ aiStatus: 'THINKING' });
     let replyText = "Receipt acknowledged.";
@@ -257,14 +296,16 @@ export const startAiLoop = () => {
         console.error("LLM Error", e);
     }
     
-    // 5. Move to 'Reply' Button and Click it to open input
+    // 5. Move to 'Reply' Button
     const replyBtnPos = getElementPos('reply-btn');
     if (replyBtnPos) {
         store.setState({ aiStatus: 'MOVING' });
+        store.getState().setAiVisionFocus({ ...replyBtnPos.rect, label: 'INITIATING_REPLY' });
         await moveMouseTo(replyBtnPos.x, replyBtnPos.y);
+        store.getState().setAiVisionFocus(null);
         await simulateClick('reply-btn');
         store.getState().setReplyingTo(targetEmail.id);
-        await new Promise(r => setTimeout(r, 400)); // UI transition wait
+        await new Promise(r => setTimeout(r, 400));
     }
 
     // 6. Type Response

@@ -1,6 +1,6 @@
 import { jsxDEV } from "react/jsx-dev-runtime";
 import React, { useState, useEffect, useRef } from "react";
-import { Mail, Send, MousePointer2, Inbox, SendHorizontal, Cpu, MonitorPlay } from "lucide-react";
+import { Mail, Send, MousePointer2, Inbox, SendHorizontal, Cpu, MonitorPlay, Star, Crosshair } from "lucide-react";
 import clsx from "clsx";
 import { store, addEvent } from "./store.js";
 const FolderTabs = ({ currentFolder, onSwitch, isAi }) => {
@@ -88,14 +88,42 @@ const EmailList = ({ emails, onSelect, selectedId, readOnly = false }) => {
         ),
         children: [
           /* @__PURE__ */ jsxDEV("div", { className: "flex justify-between items-baseline mb-1", children: [
-            /* @__PURE__ */ jsxDEV("span", { className: clsx("font-medium truncate", !email.read ? "text-white" : "text-slate-400"), children: email.from }, void 0, false, {
+            /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 overflow-hidden", children: [
+              /* @__PURE__ */ jsxDEV(
+                "button",
+                {
+                  onClick: (e) => {
+                    e.stopPropagation();
+                    store.getState().toggleStar(email.id, readOnly ? "ai" : "user");
+                  },
+                  className: "hover:bg-slate-700/50 p-1 rounded transition-colors shrink-0 z-10",
+                  children: /* @__PURE__ */ jsxDEV(Star, { size: 14, className: clsx("transition-colors", email.starred ? "fill-yellow-500 text-yellow-500" : "text-slate-600 hover:text-slate-400") }, void 0, false, {
+                    fileName: "<stdin>",
+                    lineNumber: 65,
+                    columnNumber: 19
+                  })
+                },
+                void 0,
+                false,
+                {
+                  fileName: "<stdin>",
+                  lineNumber: 58,
+                  columnNumber: 17
+                }
+              ),
+              /* @__PURE__ */ jsxDEV("span", { className: clsx("font-medium truncate", !email.read ? "text-white" : "text-slate-400"), children: email.from }, void 0, false, {
+                fileName: "<stdin>",
+                lineNumber: 67,
+                columnNumber: 17
+              })
+            ] }, void 0, true, {
               fileName: "<stdin>",
               lineNumber: 57,
               columnNumber: 13
             }),
-            /* @__PURE__ */ jsxDEV("span", { className: "text-xs text-slate-500", children: new Date(email.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }, void 0, false, {
+            /* @__PURE__ */ jsxDEV("span", { className: "text-xs text-slate-500 shrink-0", children: new Date(email.timestamp).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }) }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 60,
+              lineNumber: 71,
               columnNumber: 13
             })
           ] }, void 0, true, {
@@ -105,12 +133,12 @@ const EmailList = ({ emails, onSelect, selectedId, readOnly = false }) => {
           }),
           /* @__PURE__ */ jsxDEV("div", { className: "text-sm font-medium text-slate-300 truncate mb-1", children: email.subject }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 64,
+            lineNumber: 75,
             columnNumber: 11
           }),
           /* @__PURE__ */ jsxDEV("div", { className: "text-xs text-slate-500 truncate", children: email.body }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 65,
+            lineNumber: 76,
             columnNumber: 11
           })
         ]
@@ -144,65 +172,10 @@ const EmailReader = ({
     return /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col items-center justify-center text-slate-600 bg-slate-950", children: [
       /* @__PURE__ */ jsxDEV(Mail, { size: 48, className: "mb-4 opacity-50" }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 87,
-        columnNumber: 9
-      }),
-      /* @__PURE__ */ jsxDEV("p", { children: "Select an email to read" }, void 0, false, {
-        fileName: "<stdin>",
-        lineNumber: 88,
-        columnNumber: 9
-      })
-    ] }, void 0, true, {
-      fileName: "<stdin>",
-      lineNumber: 86,
-      columnNumber: 7
-    });
-  }
-  const isReplying = replyingToId === email.id;
-  return /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col bg-slate-950 h-full", children: [
-    /* @__PURE__ */ jsxDEV("div", { className: "p-6 border-b border-slate-800", children: [
-      /* @__PURE__ */ jsxDEV("h2", { className: "text-2xl font-bold text-white mb-4", children: email.subject }, void 0, false, {
-        fileName: "<stdin>",
         lineNumber: 98,
         columnNumber: 9
       }),
-      /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between", children: [
-        /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-3", children: [
-          /* @__PURE__ */ jsxDEV("div", { className: "w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-lg font-bold", children: email.from[0].toUpperCase() }, void 0, false, {
-            fileName: "<stdin>",
-            lineNumber: 101,
-            columnNumber: 13
-          }),
-          /* @__PURE__ */ jsxDEV("div", { children: [
-            /* @__PURE__ */ jsxDEV("div", { className: "font-bold", children: email.from }, void 0, false, {
-              fileName: "<stdin>",
-              lineNumber: 105,
-              columnNumber: 15
-            }),
-            /* @__PURE__ */ jsxDEV("div", { className: "text-xs text-slate-400", children: [
-              "to ",
-              email.to
-            ] }, void 0, true, {
-              fileName: "<stdin>",
-              lineNumber: 106,
-              columnNumber: 15
-            })
-          ] }, void 0, true, {
-            fileName: "<stdin>",
-            lineNumber: 104,
-            columnNumber: 13
-          })
-        ] }, void 0, true, {
-          fileName: "<stdin>",
-          lineNumber: 100,
-          columnNumber: 11
-        }),
-        /* @__PURE__ */ jsxDEV("div", { className: "text-sm text-slate-500", children: new Date(email.timestamp).toLocaleString() }, void 0, false, {
-          fileName: "<stdin>",
-          lineNumber: 109,
-          columnNumber: 11
-        })
-      ] }, void 0, true, {
+      /* @__PURE__ */ jsxDEV("p", { children: "Select an email to read" }, void 0, false, {
         fileName: "<stdin>",
         lineNumber: 99,
         columnNumber: 9
@@ -211,27 +184,108 @@ const EmailReader = ({
       fileName: "<stdin>",
       lineNumber: 97,
       columnNumber: 7
-    }),
-    /* @__PURE__ */ jsxDEV("div", { className: "p-6 flex-1 overflow-y-auto whitespace-pre-wrap text-slate-300 leading-relaxed", children: email.body }, void 0, false, {
+    });
+  }
+  const isReplying = replyingToId === email.id;
+  return /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex flex-col bg-slate-950 h-full", children: [
+    /* @__PURE__ */ jsxDEV("div", { className: "p-6 border-b border-slate-800", children: [
+      /* @__PURE__ */ jsxDEV("div", { className: "flex items-start justify-between mb-4", children: [
+        /* @__PURE__ */ jsxDEV("h2", { className: "text-2xl font-bold text-white", children: email.subject }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 110,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV(
+          "button",
+          {
+            id: "reader-star-btn",
+            onClick: () => store.getState().toggleStar(email.id, isAiView ? "ai" : "user"),
+            className: "p-2 hover:bg-slate-800 rounded-full transition-colors",
+            children: /* @__PURE__ */ jsxDEV(Star, { size: 20, className: clsx("transition-colors", email.starred ? "fill-yellow-500 text-yellow-500" : "text-slate-600 hover:text-slate-400") }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 116,
+              columnNumber: 17
+            })
+          },
+          void 0,
+          false,
+          {
+            fileName: "<stdin>",
+            lineNumber: 111,
+            columnNumber: 13
+          }
+        )
+      ] }, void 0, true, {
+        fileName: "<stdin>",
+        lineNumber: 109,
+        columnNumber: 9
+      }),
+      /* @__PURE__ */ jsxDEV("div", { className: "flex items-center justify-between", children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-3", children: [
+          /* @__PURE__ */ jsxDEV("div", { className: "w-10 h-10 rounded-full bg-blue-600 flex items-center justify-center text-lg font-bold", children: email.from[0].toUpperCase() }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 121,
+            columnNumber: 13
+          }),
+          /* @__PURE__ */ jsxDEV("div", { children: [
+            /* @__PURE__ */ jsxDEV("div", { className: "font-bold", children: email.from }, void 0, false, {
+              fileName: "<stdin>",
+              lineNumber: 125,
+              columnNumber: 15
+            }),
+            /* @__PURE__ */ jsxDEV("div", { className: "text-xs text-slate-400", children: [
+              "to ",
+              email.to
+            ] }, void 0, true, {
+              fileName: "<stdin>",
+              lineNumber: 126,
+              columnNumber: 15
+            })
+          ] }, void 0, true, {
+            fileName: "<stdin>",
+            lineNumber: 124,
+            columnNumber: 13
+          })
+        ] }, void 0, true, {
+          fileName: "<stdin>",
+          lineNumber: 120,
+          columnNumber: 11
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "text-sm text-slate-500", children: new Date(email.timestamp).toLocaleString() }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 129,
+          columnNumber: 11
+        })
+      ] }, void 0, true, {
+        fileName: "<stdin>",
+        lineNumber: 119,
+        columnNumber: 9
+      })
+    ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 115,
+      lineNumber: 108,
+      columnNumber: 7
+    }),
+    /* @__PURE__ */ jsxDEV("div", { id: "email-body-content", className: "p-6 flex-1 overflow-y-auto whitespace-pre-wrap text-slate-300 leading-relaxed", children: email.body }, void 0, false, {
+      fileName: "<stdin>",
+      lineNumber: 135,
       columnNumber: 7
     }),
     /* @__PURE__ */ jsxDEV("div", { className: "p-4 border-t border-slate-800 bg-slate-900", children: isReplying ? /* @__PURE__ */ jsxDEV("div", { className: "space-y-3", children: [
       /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-blue-400 text-sm font-mono mb-2", children: [
         /* @__PURE__ */ jsxDEV(Cpu, { size: 14 }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 124,
+          lineNumber: 144,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("span", { children: isAiView ? "AI RESPONSE GENERATION PROTOCOL" : "COMPOSING REPLY..." }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 125,
+          lineNumber: 145,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 123,
+        lineNumber: 143,
         columnNumber: 14
       }),
       !isAiView && setUserReplyDraft ? /* @__PURE__ */ jsxDEV(
@@ -247,7 +301,7 @@ const EmailReader = ({
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 129,
+          lineNumber: 149,
           columnNumber: 16
         }
       ) : /* @__PURE__ */ jsxDEV(
@@ -262,7 +316,7 @@ const EmailReader = ({
             isAiView ? typingBuffer || "" : userReplyDraft || typingBuffer || "",
             isAiView && /* @__PURE__ */ jsxDEV("span", { className: "animate-pulse inline-block w-2 h-4 bg-cyan-400 ml-1" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 145,
+              lineNumber: 165,
               columnNumber: 31
             })
           ]
@@ -271,7 +325,7 @@ const EmailReader = ({
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 137,
+          lineNumber: 157,
           columnNumber: 16
         }
       ),
@@ -288,12 +342,12 @@ const EmailReader = ({
           children: [
             /* @__PURE__ */ jsxDEV(Send, { size: 16 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 159,
+              lineNumber: 179,
               columnNumber: 19
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Send Reply" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 160,
+              lineNumber: 180,
               columnNumber: 19
             })
           ]
@@ -302,17 +356,17 @@ const EmailReader = ({
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 150,
+          lineNumber: 170,
           columnNumber: 17
         }
       ) }, void 0, false, {
         fileName: "<stdin>",
-        lineNumber: 149,
+        lineNumber: 169,
         columnNumber: 14
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 122,
+      lineNumber: 142,
       columnNumber: 12
     }) : /* @__PURE__ */ jsxDEV("div", { className: "flex justify-end", children: /* @__PURE__ */ jsxDEV(
       "button",
@@ -323,12 +377,12 @@ const EmailReader = ({
         children: [
           /* @__PURE__ */ jsxDEV(Send, { size: 16 }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 171,
+            lineNumber: 191,
             columnNumber: 16
           }),
           /* @__PURE__ */ jsxDEV("span", { children: "Reply" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 172,
+            lineNumber: 192,
             columnNumber: 16
           })
         ]
@@ -337,21 +391,21 @@ const EmailReader = ({
       true,
       {
         fileName: "<stdin>",
-        lineNumber: 166,
+        lineNumber: 186,
         columnNumber: 14
       }
     ) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 165,
+      lineNumber: 185,
       columnNumber: 12
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 120,
+      lineNumber: 140,
       columnNumber: 7
     })
   ] }, void 0, true, {
     fileName: "<stdin>",
-    lineNumber: 96,
+    lineNumber: 107,
     columnNumber: 5
   });
 };
@@ -364,7 +418,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
       children: [
         /* @__PURE__ */ jsxDEV("div", { className: "cursor-ring" }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 188,
+          lineNumber: 208,
           columnNumber: 7
         }),
         /* @__PURE__ */ jsxDEV(
@@ -380,7 +434,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 189,
+            lineNumber: 209,
             columnNumber: 7
           }
         ),
@@ -389,7 +443,7 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
           isAi ? "bg-cyan-500 text-black" : "bg-white text-black"
         ), children: label }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 197,
+          lineNumber: 217,
           columnNumber: 9
         })
       ]
@@ -398,12 +452,82 @@ const Cursor = ({ x, y, label, isAi, isClicking }) => {
     true,
     {
       fileName: "<stdin>",
-      lineNumber: 184,
+      lineNumber: 204,
       columnNumber: 5
     }
   );
 };
+const AiVisionOverlay = ({ focus }) => {
+  if (!focus) return null;
+  return /* @__PURE__ */ jsxDEV(
+    "div",
+    {
+      className: "fixed pointer-events-none z-30 transition-all duration-300 ease-out border-2 border-dashed border-red-500/50 bg-red-500/5",
+      style: {
+        left: focus.x,
+        top: focus.y,
+        width: focus.width,
+        height: focus.height
+      },
+      children: [
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute -top-6 left-0 bg-red-500/80 text-white text-[10px] font-mono px-1 py-0.5 rounded-sm flex items-center space-x-1", children: [
+          /* @__PURE__ */ jsxDEV(Crosshair, { size: 10 }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 245,
+            columnNumber: 17
+          }),
+          /* @__PURE__ */ jsxDEV("span", { children: focus.label || "OBJECT_DETECTED" }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 246,
+            columnNumber: 17
+          })
+        ] }, void 0, true, {
+          fileName: "<stdin>",
+          lineNumber: 244,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute -bottom-4 right-0 text-red-400 text-[9px] font-mono", children: [
+          Math.round(focus.width),
+          "x",
+          Math.round(focus.height)
+        ] }, void 0, true, {
+          fileName: "<stdin>",
+          lineNumber: 248,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute top-0 left-0 w-2 h-2 border-t-2 border-l-2 border-red-400" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 252,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute top-0 right-0 w-2 h-2 border-t-2 border-r-2 border-red-400" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 253,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-0 left-0 w-2 h-2 border-b-2 border-l-2 border-red-400" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 254,
+          columnNumber: 13
+        }),
+        /* @__PURE__ */ jsxDEV("div", { className: "absolute bottom-0 right-0 w-2 h-2 border-b-2 border-r-2 border-red-400" }, void 0, false, {
+          fileName: "<stdin>",
+          lineNumber: 255,
+          columnNumber: 13
+        })
+      ]
+    },
+    void 0,
+    true,
+    {
+      fileName: "<stdin>",
+      lineNumber: 235,
+      columnNumber: 9
+    }
+  );
+};
 export {
+  AiVisionOverlay,
   Cursor,
   EmailList,
   EmailReader,

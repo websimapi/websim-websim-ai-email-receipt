@@ -4,7 +4,7 @@ import { createRoot } from "react-dom/client";
 import { Player } from "@websim/remotion/player";
 import { Mail, Settings, Play, Monitor, User, Send as SendIcon, Columns, ArrowRightLeft } from "lucide-react";
 import { store, startAiLoop, addEvent, eventLog, INITIAL_EMAILS } from "./store.js";
-import { EmailList, EmailReader, Cursor, FolderTabs } from "./components.jsx";
+import { EmailList, EmailReader, Cursor, FolderTabs, AiVisionOverlay } from "./components.jsx";
 import { EmailReplay } from "./video.jsx";
 import clsx from "clsx";
 const useMobile = () => {
@@ -259,6 +259,11 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
           }
         ),
         isAi && /* @__PURE__ */ jsxDEV(Fragment, { children: [
+          /* @__PURE__ */ jsxDEV(AiVisionOverlay, { focus: state.aiVisionFocus }, void 0, false, {
+            fileName: "<stdin>",
+            lineNumber: 164,
+            columnNumber: 25
+          }),
           /* @__PURE__ */ jsxDEV(
             Cursor,
             {
@@ -272,13 +277,13 @@ const InterfacePanel = ({ isAi, state, selectedEmail, onSelectEmail, isComposeOp
             false,
             {
               fileName: "<stdin>",
-              lineNumber: 164,
+              lineNumber: 165,
               columnNumber: 25
             }
           ),
           /* @__PURE__ */ jsxDEV("div", { className: "absolute inset-0 pointer-events-none retro-scanline z-40 opacity-30 mix-blend-overlay" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 171,
+            lineNumber: 172,
             columnNumber: 25
           })
         ] }, void 0, true, {
@@ -356,17 +361,17 @@ const App = () => {
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2 text-slate-400 font-mono text-xs", children: [
           /* @__PURE__ */ jsxDEV("span", { className: "w-2 h-2 bg-green-500 rounded-full" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 261,
+            lineNumber: 262,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: "SYSTEM_ONLINE" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 262,
+            lineNumber: 263,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { className: "text-slate-600", children: "|" }, void 0, false, {
             fileName: "<stdin>",
-            lineNumber: 263,
+            lineNumber: 264,
             columnNumber: 21
           }),
           /* @__PURE__ */ jsxDEV("span", { children: [
@@ -374,12 +379,12 @@ const App = () => {
             " MESSAGES"
           ] }, void 0, true, {
             fileName: "<stdin>",
-            lineNumber: 264,
+            lineNumber: 265,
             columnNumber: 21
           })
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 260,
+          lineNumber: 261,
           columnNumber: 17
         }),
         /* @__PURE__ */ jsxDEV("div", { className: "flex items-center space-x-2", children: [
@@ -391,12 +396,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(ArrowRightLeft, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 274,
+                  lineNumber: 275,
                   columnNumber: 29
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "Switch View" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 275,
+                  lineNumber: 276,
                   columnNumber: 29
                 })
               ]
@@ -405,7 +410,7 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 270,
+              lineNumber: 271,
               columnNumber: 25
             }
           ),
@@ -419,12 +424,12 @@ const App = () => {
               children: [
                 /* @__PURE__ */ jsxDEV(Play, { size: 12 }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 285,
+                  lineNumber: 286,
                   columnNumber: 25
                 }),
                 /* @__PURE__ */ jsxDEV("span", { children: "REPLAY SESSION" }, void 0, false, {
                   fileName: "<stdin>",
-                  lineNumber: 286,
+                  lineNumber: 287,
                   columnNumber: 25
                 })
               ]
@@ -433,18 +438,18 @@ const App = () => {
             true,
             {
               fileName: "<stdin>",
-              lineNumber: 279,
+              lineNumber: 280,
               columnNumber: 22
             }
           )
         ] }, void 0, true, {
           fileName: "<stdin>",
-          lineNumber: 267,
+          lineNumber: 268,
           columnNumber: 17
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 259,
+        lineNumber: 260,
         columnNumber: 14
       }),
       /* @__PURE__ */ jsxDEV("div", { className: "flex-1 flex overflow-hidden relative", children: [
@@ -468,12 +473,12 @@ const App = () => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 295,
+            lineNumber: 296,
             columnNumber: 25
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 294,
+          lineNumber: 295,
           columnNumber: 21
         }),
         showAi && /* @__PURE__ */ jsxDEV("div", { className: clsx("h-full relative z-0", isMobile ? "w-full" : "w-1/2"), children: /* @__PURE__ */ jsxDEV(
@@ -489,22 +494,22 @@ const App = () => {
           false,
           {
             fileName: "<stdin>",
-            lineNumber: 318,
+            lineNumber: 319,
             columnNumber: 26
           }
         ) }, void 0, false, {
           fileName: "<stdin>",
-          lineNumber: 313,
+          lineNumber: 314,
           columnNumber: 21
         })
       ] }, void 0, true, {
         fileName: "<stdin>",
-        lineNumber: 292,
+        lineNumber: 293,
         columnNumber: 14
       })
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 257,
+      lineNumber: 258,
       columnNumber: 9
     });
   };
@@ -533,7 +538,7 @@ const App = () => {
         false,
         {
           fileName: "<stdin>",
-          lineNumber: 348,
+          lineNumber: 349,
           columnNumber: 19
         }
       ),
@@ -545,12 +550,12 @@ const App = () => {
           children: [
             /* @__PURE__ */ jsxDEV(Monitor, { size: 14 }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 368,
+              lineNumber: 369,
               columnNumber: 23
             }),
             /* @__PURE__ */ jsxDEV("span", { children: "Back to System" }, void 0, false, {
               fileName: "<stdin>",
-              lineNumber: 369,
+              lineNumber: 370,
               columnNumber: 23
             })
           ]
@@ -559,17 +564,17 @@ const App = () => {
         true,
         {
           fileName: "<stdin>",
-          lineNumber: 364,
+          lineNumber: 365,
           columnNumber: 19
         }
       )
     ] }, void 0, true, {
       fileName: "<stdin>",
-      lineNumber: 347,
+      lineNumber: 348,
       columnNumber: 15
     }) }, void 0, false, {
       fileName: "<stdin>",
-      lineNumber: 346,
+      lineNumber: 347,
       columnNumber: 11
     });
   }
@@ -578,6 +583,6 @@ const App = () => {
 const root = createRoot(document.getElementById("root"));
 root.render(/* @__PURE__ */ jsxDEV(App, {}, void 0, false, {
   fileName: "<stdin>",
-  lineNumber: 380,
+  lineNumber: 381,
   columnNumber: 13
 }));
