@@ -135,6 +135,7 @@ const getElementPos = (id) => {
 async function moveMouseTo(targetX, targetY, duration = 600) {
   const start = store.getState().aiCursor;
   const startTime = Date.now();
+  let lastLogTime = 0;
   
   // Add some randomness to path (Bezier-like curve midpoint)
   const controlX = (start.x + targetX) / 2 + (Math.random() - 0.5) * 100;
@@ -154,7 +155,12 @@ async function moveMouseTo(targetX, targetY, duration = 600) {
       const y = (1 - t) * (1 - t) * start.y + 2 * (1 - t) * t * controlY + t * t * targetY;
       
       store.getState().updateAiCursor(x, y);
-      addEvent('MOUSE_MOVE', { x, y }, 'ai'); // Log for replay
+      
+      // Throttle logging to prevent JSON bloat, but ensure start/end are logged
+      if (Date.now() - lastLogTime > 40 || progress >= 1 || progress <= 0) {
+        addEvent('MOUSE_MOVE', { x, y }, 'ai'); // Log for replay
+        lastLogTime = Date.now();
+      }
       
       if (progress < 1) {
         requestAnimationFrame(animate);

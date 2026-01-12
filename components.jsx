@@ -230,7 +230,7 @@ const EmailReader = ({ email, onClose, isAiView, typingBuffer, replyingToId, onR
           id: "reply-body",
           className: "w-full p-4 bg-black/50 rounded border border-blue-900/50 text-blue-100 font-mono h-32 whitespace-pre-wrap",
           children: [
-            isAiView ? typingBuffer : "User manual input would go here...",
+            isAiView ? typingBuffer || "" : "User manual input would go here...",
             /* @__PURE__ */ jsxDEV("span", { className: "animate-pulse inline-block w-2 h-4 bg-blue-400 ml-1" }, void 0, false, {
               fileName: "<stdin>",
               lineNumber: 122,
